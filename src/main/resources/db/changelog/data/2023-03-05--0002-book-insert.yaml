@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2023-03-05--0002-book-insert
+      author: ppopeskul
+      changes:
+        - insert:
+            tableName: book
+            columns:
+              - column:
+                  name: id
+                  value: 3
+              - column:
+                  name: title
+                  value: The Shining
+              - column:
+                  name: description
+                  value: A horror novel by Stephen King
+              - column:
+                  name: price
+                  value: 12.99
+              - column:
+                  name: author_id
+                  value: 2
+              - column:
+                  name: genre_id
+                  value: 3
+        - insert:
+            tableName: book
+            columns:
+              - column:
+                  name: id
+                  value: 4
+              - column:
+                  name: title
+                  value: It
+              - column:
+                  name: description
+                  value: A horror novel by Stephen King
+              - column:
+                  name: price
+                  value: 15.99
+              - column:
+                  name: author_id
+                  value: 2
+              - column:
+                  name: genre_id
+                  value: 3
