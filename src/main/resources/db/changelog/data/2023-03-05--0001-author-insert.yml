@@ -6,11 +6,7 @@ databaseChangeLog:
       changes:
         - insert:
             tableName: author
-            schemaName: public
             columns:
-              - column:
-                  name: id
-                  value: 1
               - column:
                   name: name
                   value: 'J.K. Rowling'
@@ -20,9 +16,6 @@ databaseChangeLog:
         - insert:
             tableName: author
             columns:
-              - column:
-                  name: id
-                  valueNumeric: 2
               - column:
                   name: name
                   value: 'Stephen King'

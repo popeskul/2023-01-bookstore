@@ -7,9 +7,6 @@ databaseChangeLog:
             tableName: book
             columns:
               - column:
-                  name: id
-                  value: 3
-              - column:
                   name: title
                   value: The Shining
               - column:
@@ -27,9 +24,6 @@ databaseChangeLog:
         - insert:
             tableName: book
             columns:
-              - column:
-                  name: id
-                  value: 4
               - column:
                   name: title
                   value: It
@@ -49,9 +43,6 @@ databaseChangeLog:
             tableName: book
             columns:
               - column:
-                  name: id
-                  value: 1
-              - column:
                   name: title
                   value: Harry Potter and the Philosopher's Stone
               - column:
@@ -69,9 +60,6 @@ databaseChangeLog:
         - insert:
             tableName: book
             columns:
-              - column:
-                  name: id
-                  value: 2
               - column:
                   name: title
                   value: The Casual Vacancy

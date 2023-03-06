@@ -7,9 +7,6 @@ databaseChangeLog:
             tableName: genre
             columns:
               - column:
-                  name: id
-                  value: 1
-              - column:
                   name: name
                   value: Fantasy
         - insert:
