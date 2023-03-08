@@ -1,36 +1,50 @@
 package com.otus.bookstore.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "genre")
 @Getter
-@Setter
-@ToString
-@NoArgsConstructor
-public class Genre {
+@Builder(toBuilder = true)
+@RequiredArgsConstructor
+public final class Genre {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private final int id;
 
     @Column(name = "name", nullable = false)
-    private String name;
+    private final String name;
+
+    public Genre() {
+        this.id = 0;
+        this.name = "";
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Genre genre)) return false;
-        return id == genre.id &&
-                Objects.equals(name, genre.name);
+        if (o == null || getClass() != o.getClass()) return false;
+        Genre genre = (Genre) o;
+        return id == genre.id && Objects.equals(name, genre.name);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(id, name);
+    }
+
+    @Override
+    public String toString() {
+        return "Genre{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                '}';
     }
 }

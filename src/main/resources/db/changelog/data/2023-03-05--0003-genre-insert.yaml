@@ -13,17 +13,11 @@ databaseChangeLog:
             tableName: genre
             columns:
               - column:
-                  name: id
-                  value: 2
-              - column:
                   name: name
                   value: Fiction
         - insert:
             tableName: genre
             columns:
-              - column:
-                  name: id
-                  value: 3
               - column:
                   name: name
                   value: Horror
