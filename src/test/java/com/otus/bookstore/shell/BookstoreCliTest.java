@@ -2,6 +2,7 @@ package com.otus.bookstore.shell;
 
 import com.otus.bookstore.dao.BookDao;
 import com.otus.bookstore.model.Book;
+import com.otus.bookstore.utils.ShellBookPatterns;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -21,12 +22,11 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class BookstoreCliTest {
-    private final static String COMMAND_GET_ALL_BOOKS = "get-all-books";
-    private final static String COMMAND_GET_BOOK_BY_ID = "book-by-id";
-    private final static String COMMAND_CREATE_BOOK = "create-book";
-    private final static String COMMAND_UPDATE_BOOK = "update-book";
-    private final static String COMMAND_DELETE_BOOK = "delete-book";
-    private final static String COMMAND_DELETE_ALL_BOOKS = "delete-all-books";
+    private final static String COMMAND_GET_ALL_BOOKS = "book list";
+    private final static String COMMAND_GET_BOOK_BY_ID = "book find";
+    private final static String COMMAND_CREATE_BOOK = "book create";
+    private final static String COMMAND_UPDATE_BOOK = "book update";
+    private final static String COMMAND_DELETE_BOOK = "book delete";
 
     private ArgumentCaptor<Object> argumentCaptor;
 
@@ -94,12 +94,11 @@ class BookstoreCliTest {
         assertThat(maxId).isGreaterThan(0);
 
         when(inputProvider.readInput())
-                .thenReturn(() -> COMMAND_CREATE_BOOK + " " +
-                        "--title title " +
-                        "--description description " +
-                        "--price 100.0 " +
-                        "--authorId 1 " +
-                        "--genreId 1")
+                .thenReturn(() -> String.format(
+                                ShellBookPatterns.SHELL_CREATE_BOOK_PATTERN.formatted(
+                                        COMMAND_CREATE_BOOK, "title", "description", "100.0", "1", "1")
+                        )
+                )
                 .thenReturn(null);
 
         shell.run(inputProvider);
@@ -115,13 +114,11 @@ class BookstoreCliTest {
     @Test
     void shouldUpdateBook() throws Exception {
         when(inputProvider.readInput())
-                .thenReturn(() -> COMMAND_UPDATE_BOOK + " " +
-                        "--id 1 " +
-                        "--title title " +
-                        "--description description " +
-                        "--price 100.0 " +
-                        "--authorId 1 " +
-                        "--genreId 1")
+                .thenReturn(() -> String.format(
+                                ShellBookPatterns.SHELL_UPDATE_BOOK_PATTERN.formatted(
+                                        COMMAND_UPDATE_BOOK, "1", "title", "description", "100.0", "1", "1")
+                        )
+                )
                 .thenReturn(null);
 
         shell.run(inputProvider);

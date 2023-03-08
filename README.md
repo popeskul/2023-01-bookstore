@@ -16,18 +16,11 @@ To install and run the application, follow these steps:
 
 ## Usage
 Once the application is running, you can interact with it using Spring Shell. The following commands are available:
-* book add: Adds a new book to the database.
-* book update: Updates an existing book in the database.
-* book delete: Deletes a book from the database.
-* book find: Finds a book by ID or title.
-* author add: Adds a new author to the database.
-* author update: Updates an existing author in the database.
-* author delete: Deletes an author from the database.
-* author find: Finds an author by ID or name.
-* genre add: Adds a new genre to the database.
-* genre update: Updates an existing genre in the database.
-* genre delete: Deletes a genre from the database.
-* genre find: Finds a genre by ID or name.
+* book add --title title --description description --price 10.00 --authorId 1 --genreId 1
+* book update --id --title title --description description --price 10.00 --authorId 1 --genreId 
+* book delete 1
+* book find 1
+* book list
 
 ## Database Scripts
 The project includes scripts for creating the database tables and populating them with sample data. These scripts are executed automatically when the application starts up using Spring Boot's spring-boot-starter-jdbc library.

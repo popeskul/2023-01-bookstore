@@ -18,23 +18,26 @@ import java.util.Optional;
 @ShellComponent
 @RequiredArgsConstructor
 public class BookstoreCli {
+    private static String ERROR_AUTHOR_NOT_FOUND = "Author not found";
+    private static String ERROR_GENRE_NOT_FOUND = "Genre not found";
+
     private final BookDao bookDao;
     private final AuthorDao authorDao;
     private final GenreDao genreDao;
 
-    @ShellMethod(value = "Get all books", key = {"get-all-books"})
+    @ShellMethod(value = "Get all books", key = {"book list"})
     public List<Book> getAllBooks() {
         return bookDao.getAll();
     }
 
-    @ShellMethod(value = "Get book by id", key = {"book-by-id"})
+    @ShellMethod(value = "Get book by id", key = {"book find"})
     public Optional<Book> getBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
         return bookDao.getById(Integer.parseInt(id));
     }
 
-    @ShellMethod(value = "Create book", key = {"create-book"})
+    @ShellMethod(value = "Create book", key = {"book create"})
     public Optional<Integer> createBook(
             @ShellOption(defaultValue = "title") String title,
             @ShellOption(defaultValue = "description") String description,
@@ -43,10 +46,10 @@ public class BookstoreCli {
             @ShellOption(defaultValue = "genreId") String genreId
     ) {
         Author author = authorDao.getById(Integer.parseInt(authorId))
-                .orElseThrow(() -> new RuntimeException("Author not found"));
+                .orElseThrow(() -> new RuntimeException(ERROR_AUTHOR_NOT_FOUND));
 
         Genre genre = genreDao.getById(Integer.parseInt(genreId))
-                .orElseThrow(() -> new RuntimeException("Genre not found"));
+                .orElseThrow(() -> new RuntimeException(ERROR_GENRE_NOT_FOUND));
 
         Book dirtyBook = Book.builder()
                 .title(title)
@@ -59,7 +62,7 @@ public class BookstoreCli {
         return bookDao.insert(dirtyBook);
     }
 
-    @ShellMethod(value = "Update book", key = {"update-book"})
+    @ShellMethod(value = "Update book", key = {"book update"})
     public void updateBook(
             @ShellOption(defaultValue = "id") String id,
             @ShellOption(defaultValue = "title") String title,
@@ -78,7 +81,7 @@ public class BookstoreCli {
                 .build());
     }
 
-    @ShellMethod(value = "Delete book by id", key = {"delete-book"})
+    @ShellMethod(value = "Delete book by id", key = {"book delete"})
     public void deleteBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
