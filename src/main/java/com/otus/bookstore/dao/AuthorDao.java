@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AuthorDao {
-    int insert(Author author);
+    Optional<Integer> insert(Author author);
     void update(Author author);
     void deleteById(int id);
     Optional<Author> getById(int id);
     List<Author> getAll();
+    void deleteAll();
 }

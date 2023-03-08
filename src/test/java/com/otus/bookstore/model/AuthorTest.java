@@ -12,6 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @DataJpaTest
 class AuthorTest {
+    private final int id = 1;
+    private final int id3 = 3;
+    private final String name = "John Doe";
+    private final String name2 = "Jane Smith";
+    private final String email = "john.doe@example.com";
+    private final String email2 = "jane.smith@example.com";
 
     @Autowired
     private TestEntityManager entityManager;
@@ -27,12 +33,12 @@ class AuthorTest {
 
     @Test
     void testEqualsAndHashCode() {
-        Author author1 = Author.builder().id(1).name("John Doe").email("john.doe@example.com").build();
-        Author author2 = Author.builder().id(1).name("John Doe").email("john.doe@example.com").build();
-        Author author3 = Author.builder().id(3).name("Jane Smith").email("jane.smith@example.com").build();
+        Author author1 = Author.builder().id(id).name(name).email(email).build();
+        Author author2 = Author.builder().id(id).name(name).email(email).build();
+        Author author3 = Author.builder().id(id3).name(name2).email(email2).build();
 
         // Reflexivity
-        assertEquals(author1, author1);
+        assertEquals(author1, author2);
 
         // Symmetry
         assertEquals(author1, author2);
@@ -54,6 +60,6 @@ class AuthorTest {
         assertNotEquals(author1.getEmail(), author3.getEmail());
 
         // toString
-        assertEquals(author1.toString(), "Author(id=1, name=John Doe, email=john.doe@example.com)");
+        assertEquals(author1.toString(), "Author{id=" + id + ", name='" + name + "', email='" + email + "'}");
     }
 }

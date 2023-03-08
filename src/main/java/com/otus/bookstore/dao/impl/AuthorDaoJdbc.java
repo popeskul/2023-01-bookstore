@@ -1,13 +1,12 @@
-package com.otus.bookstore.dao;
+package com.otus.bookstore.dao.impl;
 
+import com.otus.bookstore.dao.AuthorDao;
+import com.otus.bookstore.dao.impl.query.author.*;
 import com.otus.bookstore.model.Author;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -15,24 +14,20 @@ import java.util.Optional;
 
 @Repository
 public class AuthorDaoJdbc implements AuthorDao {
-    private final NamedParameterJdbcOperations jdbcTemplate;
-    private DataSource dataSource;
-    private AuthorInsertQuery authorInsertQuery;
-    private AuthorUpdateQuery authorUpdateQuery;
-    private DeleteAuthor deleteAuthor;
-    private AuthorSelectAllQuery authorSelectAllQuery;
-    private AuthorSelectByIdQuery authorSelectByIdQuery;
-    private DeleteAllAuthor deleteAllAuthor;
+    private final AuthorInsertQuery authorInsertQuery;
+    private final AuthorUpdateQuery authorUpdateQuery;
+    private final AuthorDeleteByIdQuery authorDeleteByIdQuery;
+    private final AuthorSelectAllQuery authorSelectAllQuery;
+    private final AuthorSelectByIdQuery authorSelectByIdQuery;
+    private final AuthorDeleteAllQuery authorDeleteAllQuery;
 
-    public AuthorDaoJdbc(NamedParameterJdbcTemplate jdbcTemplate, DataSource dataSource) {
-        this.jdbcTemplate = jdbcTemplate;
-        this.dataSource = dataSource;
-        this.authorInsertQuery = new AuthorInsertQuery(dataSource);
-        this.authorUpdateQuery = new AuthorUpdateQuery(dataSource);
-        this.deleteAuthor = new DeleteAuthor(dataSource);
-        this.authorSelectAllQuery = new AuthorSelectAllQuery(dataSource);
-        this.authorSelectByIdQuery = new AuthorSelectByIdQuery(dataSource);
-        this.deleteAllAuthor = new DeleteAllAuthor(dataSource);
+    public AuthorDaoJdbc(AuthorQueryService authorQueryService) {
+        this.authorInsertQuery = authorQueryService.getAuthorInsertQuery();
+        this.authorUpdateQuery = authorQueryService.getAuthorUpdateQuery();
+        this.authorDeleteByIdQuery = authorQueryService.getAuthorDeleteByIdQuery();
+        this.authorSelectAllQuery = authorQueryService.getAuthorSelectAllQuery();
+        this.authorSelectByIdQuery = authorQueryService.getAuthorSelectByIdQuery();
+        this.authorDeleteAllQuery = authorQueryService.getAuthorDeleteAllQuery();
     }
 
     @Override
@@ -44,6 +39,7 @@ public class AuthorDaoJdbc implements AuthorDao {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         authorInsertQuery.updateByNamedParam(params, keyHolder);
+
         return Optional.of(Objects.requireNonNull(keyHolder.getKey()).intValue());
     }
 
@@ -75,11 +71,11 @@ public class AuthorDaoJdbc implements AuthorDao {
         HashMap<String, Object> params = new HashMap<>();
         params.put("id", id);
 
-        deleteAuthor.updateByNamedParam(params);
+        authorDeleteByIdQuery.updateByNamedParam(params);
     }
 
     @Override
     public void deleteAll() {
-        deleteAllAuthor.update();
+        authorDeleteAllQuery.update();
     }
 }

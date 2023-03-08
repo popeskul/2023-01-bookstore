@@ -1,19 +1,17 @@
 package com.otus.bookstore.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "author")
 @Getter
-@Builder
-@RequiredArgsConstructor
-@ToString
+@Builder(toBuilder = true)
+@AllArgsConstructor
 public final class Author {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -43,5 +41,14 @@ public final class Author {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, email);
+    }
+
+    @Override
+    public String toString() {
+        return "Author{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }

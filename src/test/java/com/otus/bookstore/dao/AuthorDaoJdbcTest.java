@@ -1,7 +1,8 @@
 package com.otus.bookstore.dao;
 
+import com.otus.bookstore.dao.impl.AuthorDaoJdbc;
+import com.otus.bookstore.dao.impl.query.author.AuthorQueryServiceImpl;
 import com.otus.bookstore.model.Author;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
@@ -11,11 +12,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
-@DisplayName("Testing AuthorDaoJdbc")
 @JdbcTest
-@Import(AuthorDaoJdbc.class)
+@Import({AuthorDaoJdbc.class, AuthorQueryServiceImpl.class})
 class AuthorDaoJdbcTest {
     final String name = "Name";
     final String name2 = "Name22";
@@ -31,13 +32,16 @@ class AuthorDaoJdbcTest {
                 .email(email)
                 .build();
 
-        int savedId = authorDao.insert(author);
+        Optional<Integer> savedId = authorDao.insert(author);
 
-        Optional<Author> savedAuthor = authorDao.getById(savedId);
+        assertThat(savedId).isNotNull();
+        assertThat(savedId.isPresent()).isTrue();
+
+        Optional<Author> savedAuthor = authorDao.getById(savedId.get());
 
         assertThat(savedAuthor).isNotNull();
         assertThat(savedAuthor.isPresent()).isTrue();
-        assertThat(savedAuthor.get().getId()).isEqualTo(savedId);
+        assertEquals(savedAuthor.get().getId(), savedId.get());
         assertThat(savedAuthor.get().getName()).isEqualTo(name);
         assertThat(savedAuthor.get().getEmail()).isEqualTo(email);
     }
@@ -49,9 +53,12 @@ class AuthorDaoJdbcTest {
                 .email(email)
                 .build();
 
-        int savedId = authorDao.insert(oldAuthor);
+        Optional<Integer> savedId = authorDao.insert(oldAuthor);
 
-        Optional<Author> savedOldAuthor = authorDao.getById(savedId);
+        assertThat(savedId).isNotNull();
+        assertThat(savedId.isPresent()).isTrue();
+
+        Optional<Author> savedOldAuthor = authorDao.getById(savedId.get());
 
         assertThat(savedOldAuthor).isNotNull();
         assertThat(savedOldAuthor.isPresent()).isTrue();
@@ -64,7 +71,7 @@ class AuthorDaoJdbcTest {
 
         authorDao.update(newAuthor);
 
-        Optional<Author> updatedNewAuthor = authorDao.getById(savedId);
+        Optional<Author> updatedNewAuthor = authorDao.getById(savedId.get());
 
         assertThat(updatedNewAuthor).isNotNull();
         assertThat(updatedNewAuthor).isEqualTo(Optional.of(newAuthor));
@@ -77,15 +84,19 @@ class AuthorDaoJdbcTest {
                 .email(email)
                 .build();
 
-        int savedId = authorDao.insert(author);
+        Optional<Integer> savedId = authorDao.insert(author);
 
-        Optional<Author> savedAuthor = authorDao.getById(savedId);
+        assertThat(savedId).isNotNull();
+        assertThat(savedId.isPresent()).isTrue();
+
+        Optional<Author> savedAuthor = authorDao.getById(savedId.get());
 
         assertThat(savedAuthor).isNotNull();
+        assertThat(savedAuthor.isPresent()).isTrue();
 
+        authorDao.deleteById(savedId.get());
 
-        authorDao.deleteById(savedId);
-        Optional<Author> deletedAuthor = authorDao.getById(savedId);
+        Optional<Author> deletedAuthor = authorDao.getById(savedId.get());
 
         assertThat(deletedAuthor).isEmpty();
     }
@@ -97,14 +108,16 @@ class AuthorDaoJdbcTest {
                 .email(email)
                 .build();
 
-        int savedId = authorDao.insert(author);
+        Optional<Integer> savedId = authorDao.insert(author);
 
-        Optional<Author> savedAuthor = authorDao.getById(savedId);
+        assertThat(savedId).isNotNull();
+        assertThat(savedId.isPresent()).isTrue();
+
+        Optional<Author> savedAuthor = authorDao.getById(savedId.get());
 
         assertThat(savedAuthor).isNotNull();
-
         assertThat(savedAuthor.isPresent()).isTrue();
-        assertThat(savedAuthor.get().getId()).isEqualTo(savedId);
+        assertThat(savedAuthor.get().getId()).isEqualTo(savedId.get());
         assertThat(savedAuthor.get().getName()).isEqualTo(name);
         assertThat(savedAuthor.get().getEmail()).isEqualTo(email);
     }
@@ -118,18 +131,45 @@ class AuthorDaoJdbcTest {
                 .email(email)
                 .build();
 
-        int savedId = authorDao.insert(author);
+        Optional<Integer> savedId = authorDao.insert(author);
 
-        Optional<Author> savedAuthor = authorDao.getById(savedId);
+        assertThat(savedId).isNotNull();
+        assertThat(savedId.isPresent()).isTrue();
+
+        Optional<Author> savedAuthor = authorDao.getById(savedId.get());
 
         assertThat(savedAuthor).isNotNull();
         assertThat(savedAuthor.isPresent()).isTrue();
-        assertThat(savedAuthor.get().getId()).isEqualTo(savedId);
+        assertThat(savedAuthor.get().getId()).isEqualTo(savedId.get());
         assertThat(savedAuthor.get().getName()).isEqualTo(name);
         assertThat(savedAuthor.get().getEmail()).isEqualTo(email);
 
         List<Author> after = authorDao.getAll();
 
         assertThat(after.size()).isEqualTo(before.size() + 1);
+    }
+
+    @Test
+    void shouldDeleteAllAuthors() {
+        Author author = Author.builder()
+                .name(name)
+                .email(email)
+                .build();
+
+        Optional<Integer> savedId = authorDao.insert(author);
+
+        assertThat(savedId).isNotNull();
+        assertThat(savedId.isPresent()).isTrue();
+
+        Optional<Author> savedAuthor = authorDao.getById(savedId.get());
+
+        assertThat(savedAuthor).isNotNull();
+        assertThat(savedAuthor.isPresent()).isTrue();
+
+        authorDao.deleteAll();
+
+        List<Author> deletedAuthors = authorDao.getAll();
+
+        assertThat(deletedAuthors).isEmpty();
     }
 }
