@@ -1,6 +1,5 @@
-package com.otus.bookstore.dao.impl.query.book;
+package com.otus.bookstore.service.book;
 
-import com.otus.bookstore.dao.impl.mapper.BookRowMapper;
 import com.otus.bookstore.model.Book;
 import org.springframework.jdbc.object.MappingSqlQuery;
 

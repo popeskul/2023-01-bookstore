@@ -1,17 +1,20 @@
-package com.otus.bookstore.dao.impl.query.author;
+package com.otus.bookstore.service.author;
 
 import com.otus.bookstore.model.Author;
+import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.MappingSqlQuery;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
-public class AuthorSelectAllQuery extends MappingSqlQuery<Author> {
-    private static final String SQL_SELECT_ALL_AUTHORS = "SELECT * FROM author";
+public class AuthorSelectByIdQuery extends MappingSqlQuery<Author> {
+    private static final String SQL_SELECT_AUTHOR_BY_ID = "SELECT * FROM author WHERE id = :id";
 
-    public AuthorSelectAllQuery(DataSource dataSource) {
-        super(dataSource, SQL_SELECT_ALL_AUTHORS);
+    public AuthorSelectByIdQuery(DataSource dataSource) {
+        super(dataSource, SQL_SELECT_AUTHOR_BY_ID);
+        declareParameter(new SqlParameter("id", Types.INTEGER));
     }
 
     @Override
@@ -22,4 +25,3 @@ public class AuthorSelectAllQuery extends MappingSqlQuery<Author> {
         return new Author(id, name, email);
     }
 }
-

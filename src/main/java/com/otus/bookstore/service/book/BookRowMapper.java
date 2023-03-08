@@ -1,4 +1,4 @@
-package com.otus.bookstore.dao.impl.mapper;
+package com.otus.bookstore.service.book;
 
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;

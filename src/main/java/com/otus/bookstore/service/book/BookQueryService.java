@@ -1,4 +1,4 @@
-package com.otus.bookstore.dao.impl.query.book;
+package com.otus.bookstore.service.book;
 
 public interface BookQueryService {
     BookInsertQuery getBookInsertQuery();

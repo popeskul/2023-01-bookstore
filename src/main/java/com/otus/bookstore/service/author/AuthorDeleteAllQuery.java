@@ -1,4 +1,4 @@
-package com.otus.bookstore.dao.impl.query.author;
+package com.otus.bookstore.service.author;
 
 import org.springframework.jdbc.object.SqlUpdate;
 

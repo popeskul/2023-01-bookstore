@@ -1,7 +1,7 @@
 package com.otus.bookstore.dao;
 
 import com.otus.bookstore.dao.impl.AuthorDaoJdbc;
-import com.otus.bookstore.dao.impl.query.author.AuthorQueryServiceImpl;
+import com.otus.bookstore.service.author.AuthorQueryServiceImpl;
 import com.otus.bookstore.model.Author;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
