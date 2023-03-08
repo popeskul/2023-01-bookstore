@@ -8,51 +8,67 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "book")
-@Getter
+@Builder(toBuilder = true)
+@AllArgsConstructor
 @Setter
-@ToString
-@NoArgsConstructor
-public class Book {
+@Getter
+public final class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private final int id;
 
     @Column(name = "title", nullable = false)
-    private String title;
+    private final String title;
 
     @Column(name = "description", nullable = false)
-    private String description;
+    private final String description;
 
     @Column(name = "price", nullable = false)
-    private BigDecimal price;
+    private final BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
     @ToString.Exclude
-    private Author author;
+    private final Author author;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "genre_id", nullable = false)
     @ToString.Exclude
-    private Genre genre;
+    private final Genre genre;
+
+    public Book() {
+        this.id = 0;
+        this.title = "";
+        this.description = "";
+        this.price = BigDecimal.ZERO;
+        this.author = null;
+        this.genre = null;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Book book)) return false;
-        return id == book.id &&
-                Objects.equals(title, book.title) &&
-                Objects.equals(description, book.description) &&
-                Objects.equals(price, book.price) &&
-                Objects.equals(author, book.author) &&
-                Objects.equals(genre, book.genre);
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return id == book.id && Objects.equals(title, book.title) && Objects.equals(description, book.description) && Objects.equals(price, book.price) && Objects.equals(author, book.author) && Objects.equals(genre, book.genre);
     }
 
     @Override
     public int hashCode() {
-        return getClass().hashCode();
+        return Objects.hash(id, title, description, price, author, genre);
+    }
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", price=" + price +
+                ", author=" + author +
+                ", genre=" + genre +
+                '}';
     }
 }
-

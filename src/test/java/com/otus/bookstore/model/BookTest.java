@@ -12,7 +12,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @DataJpaTest
-class BookDaoTest {
+class BookTest {
+    private final int id = 1;
+    private final int id2 = 2;
+    private final int price = 100;
+    private final String title = "Book 1";
+    private final String description = "Description 1";
 
     @Autowired
     private TestEntityManager entityManager;
@@ -28,32 +33,32 @@ class BookDaoTest {
 
     @Test
     void testEqualsAndHashCode() {
-        final Author author = Author.builder().id(1).name("John Doe").email("some@mail.com").build();
-        final Genre genre = Genre.builder().id(1).name("Fiction").build();
+        final Author author = Author.builder().id(id).name("John Doe").email("some@mail.com").build();
+        final Genre genre = Genre.builder().id(id).name("Fiction").build();
 
         final Book book1 = Book.builder()
-                .id(1)
-                .title("Book 1")
-                .description("Description 1")
-                .price(BigDecimal.valueOf(100))
+                .id(id)
+                .title(title)
+                .description(description)
+                .price(BigDecimal.valueOf(price))
                 .author(author)
                 .genre(genre)
                 .build();
 
         final Book book1TheSame = Book.builder()
-                .id(1)
-                .title("Book 1")
-                .description("Description 1")
-                .price(BigDecimal.valueOf(100))
+                .id(id)
+                .title(title)
+                .description(description)
+                .price(BigDecimal.valueOf(price))
                 .author(author)
                 .genre(genre)
                 .build();
 
         final Book book2Different = Book.builder()
-                .id(2)
-                .title("Book 1")
-                .description("Description 1")
-                .price(BigDecimal.valueOf(100))
+                .id(id2)
+                .title(title)
+                .description(description)
+                .price(BigDecimal.valueOf(price))
                 .author(author)
                 .genre(genre)
                 .build();
@@ -85,6 +90,6 @@ class BookDaoTest {
         assertNotEquals(book1.getId(), book2Different.getId());
 
         // toString
-        assertEquals(book1.toString(), "Book{id=1, title='Book 1', description='Description 1', price=100, author=" + author + ", genre=" + genre + "}");
+        assertEquals(book1.toString(), "Book{id=" + id + ", title='" + title + "', description='" + description + "', price=" + price + ", author=" + author + ", genre=" + genre + "}");
     }
 }
