@@ -1,7 +1,7 @@
 package com.otus.bookstore.dao;
 
 import com.otus.bookstore.dao.impl.GenreDaoJdbc;
-import com.otus.bookstore.service.genre.GenreQueryServiceImpl;
+import com.otus.bookstore.service.query.genre.GenreQueryServiceImpl;
 import com.otus.bookstore.model.Genre;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

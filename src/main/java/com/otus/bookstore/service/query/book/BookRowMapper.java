@@ -1,4 +1,4 @@
-package com.otus.bookstore.service.book;
+package com.otus.bookstore.service.query.book;
 
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;

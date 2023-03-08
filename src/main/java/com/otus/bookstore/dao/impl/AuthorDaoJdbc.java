@@ -2,7 +2,7 @@ package com.otus.bookstore.dao.impl;
 
 import com.otus.bookstore.dao.AuthorDao;
 import com.otus.bookstore.model.Author;
-import com.otus.bookstore.service.author.*;
+import com.otus.bookstore.service.query.author.*;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;

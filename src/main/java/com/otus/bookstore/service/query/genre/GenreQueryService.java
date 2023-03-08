@@ -1,4 +1,4 @@
-package com.otus.bookstore.service.genre;
+package com.otus.bookstore.service.query.genre;
 
 public interface GenreQueryService {
     GenreInsertQuery getGenreInsertQuery();

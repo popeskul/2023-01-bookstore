@@ -1,4 +1,4 @@
-package com.otus.bookstore.service.genre;
+package com.otus.bookstore.service.query.genre;
 
 import com.otus.bookstore.model.Genre;
 import org.springframework.jdbc.object.MappingSqlQuery;

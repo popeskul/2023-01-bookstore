@@ -1,4 +1,4 @@
-package com.otus.bookstore.service.book;
+package com.otus.bookstore.service.query.book;
 
 import org.springframework.jdbc.core.SqlParameter;
 import org.springframework.jdbc.object.SqlUpdate;

@@ -23,11 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @DisplayName("Testing BookDaoJdbc")
 @JdbcTest
 @Import({AuthorDaoJdbc.class, GenreDaoJdbc.class, BookDaoJdbc.class})
-@ComponentScan({
-        "com.otus.bookstore.service.book",
-        "com.otus.bookstore.service.author",
-        "com.otus.bookstore.service.genre"
-})
+@ComponentScan("com.otus.bookstore.service.query")
 class BookDaoJdbcTest {
     private final int bookId = 1;
     private final int authorId = 1;

@@ -1,4 +1,4 @@
-package com.otus.bookstore.service.genre;
+package com.otus.bookstore.service.query.genre;
 
 import org.springframework.stereotype.Service;
 

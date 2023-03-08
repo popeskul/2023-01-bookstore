@@ -1,4 +1,4 @@
-package com.otus.bookstore.service.author;
+package com.otus.bookstore.service.query.author;
 
 public interface AuthorQueryService {
     AuthorInsertQuery getAuthorInsertQuery();
