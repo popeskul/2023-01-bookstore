@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2023-03-05--0003-genre-insert
+      author: ppopeskul
+      changes:
+        - insert:
+            tableName: genre
+            columns:
+              - column:
+                  name: name
+                  value: Fantasy
+        - insert:
+            tableName: genre
+            columns:
+              - column:
+                  name: name
+                  value: Fiction
+        - insert:
+            tableName: genre
+            columns:
+              - column:
+                  name: name
+                  value: Horror

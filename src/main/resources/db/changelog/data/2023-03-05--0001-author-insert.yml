@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2023-03-05--0001-author-insert
+      author: ppopeskul
+      runOnChange: true
+      changes:
+        - insert:
+            tableName: author
+            columns:
+              - column:
+                  name: name
+                  value: 'J.K. Rowling'
+              - column:
+                  name: email
+                  value: 'jkrowling@gmail.com'
+        - insert:
+            tableName: author
+            columns:
+              - column:
+                  name: name
+                  value: 'Stephen King'
+              - column:
+                  name: email
+                  value: 'stephenkink@gmail.com'

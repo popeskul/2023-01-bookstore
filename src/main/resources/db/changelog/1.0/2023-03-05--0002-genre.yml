@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2023-03-05--0002-genre
+      author: ppopeskul
+      changes:
+        - createTable:
+            tableName: genre
+            columns:
+              - column:
+                  name: id
+                  type: int
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

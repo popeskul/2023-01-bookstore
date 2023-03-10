@@ -1,0 +1,77 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2023-03-05--0002-book-insert
+      author: ppopeskul
+      changes:
+        - insert:
+            tableName: book
+            columns:
+              - column:
+                  name: title
+                  value: The Shining
+              - column:
+                  name: description
+                  value: A horror novel by Stephen King
+              - column:
+                  name: price
+                  value: 12.99
+              - column:
+                  name: author_id
+                  value: 2
+              - column:
+                  name: genre_id
+                  value: 3
+        - insert:
+            tableName: book
+            columns:
+              - column:
+                  name: title
+                  value: It
+              - column:
+                  name: description
+                  value: A horror novel by Stephen King
+              - column:
+                  name: price
+                  value: 15.99
+              - column:
+                  name: author_id
+                  value: 2
+              - column:
+                  name: genre_id
+                  value: 3
+        - insert:
+            tableName: book
+            columns:
+              - column:
+                  name: title
+                  value: Harry Potter and the Philosopher's Stone
+              - column:
+                  name: description
+                  value: The first book in the Harry Potter series
+              - column:
+                  name: price
+                  value: 9.99
+              - column:
+                  name: author_id
+                  value: 1
+              - column:
+                  name: genre_id
+                  value: 1
+        - insert:
+            tableName: book
+            columns:
+              - column:
+                  name: title
+                  value: The Casual Vacancy
+              - column:
+                  name: description
+                  value: A novel for adults by J.K. Rowling
+              - column:
+                  name: price
+                  value: 14.99
+              - column:
+                  name: author_id
+                  value: 1
+              - column:
+                  name: genre_id
+                  value: 2
