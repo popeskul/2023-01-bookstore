@@ -10,6 +10,14 @@ spring:
   liquibase:
     enabled: true
     change-log: classpath:db/changelog/db.changelog-master.yml
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
 logging:
   level:
     liquibase: info

@@ -1,11 +1,7 @@
 package com.otus.bookstore.shell;
 
-import com.otus.bookstore.dao.AuthorDao;
-import com.otus.bookstore.dao.BookDao;
-import com.otus.bookstore.dao.GenreDao;
-import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
-import com.otus.bookstore.model.Genre;
+import com.otus.bookstore.service.BookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -18,23 +14,18 @@ import java.util.Optional;
 @ShellComponent
 @RequiredArgsConstructor
 public class BookstoreCli {
-    private static String ERROR_AUTHOR_NOT_FOUND = "Author not found";
-    private static String ERROR_GENRE_NOT_FOUND = "Genre not found";
-
-    private final BookDao bookDao;
-    private final AuthorDao authorDao;
-    private final GenreDao genreDao;
+    private final BookService bookService;
 
     @ShellMethod(value = "Get all books", key = {"book list"})
     public List<Book> getAllBooks() {
-        return bookDao.getAll();
+        return bookService.getAll();
     }
 
     @ShellMethod(value = "Get book by id", key = {"book find"})
     public Optional<Book> getBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
-        return bookDao.getById(Integer.parseInt(id));
+        return bookService.getById(Integer.parseInt(id));
     }
 
     @ShellMethod(value = "Create book", key = {"book create"})
@@ -45,21 +36,7 @@ public class BookstoreCli {
             @ShellOption(defaultValue = "authorId") String authorId,
             @ShellOption(defaultValue = "genreId") String genreId
     ) {
-        Author author = authorDao.getById(Integer.parseInt(authorId))
-                .orElseThrow(() -> new RuntimeException(ERROR_AUTHOR_NOT_FOUND));
-
-        Genre genre = genreDao.getById(Integer.parseInt(genreId))
-                .orElseThrow(() -> new RuntimeException(ERROR_GENRE_NOT_FOUND));
-
-        Book dirtyBook = Book.builder()
-                .title(title)
-                .description(description)
-                .price(BigDecimal.valueOf(Double.parseDouble(price)))
-                .author(author)
-                .genre(genre)
-                .build();
-
-        return bookDao.insert(dirtyBook);
+        return bookService.create(title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
     }
 
     @ShellMethod(value = "Update book", key = {"book update"})
@@ -71,20 +48,16 @@ public class BookstoreCli {
             @ShellOption(defaultValue = "authorId") String authorId,
             @ShellOption(defaultValue = "genreId") String genreId
     ) {
-        bookDao.update(Book.builder()
-                .id(Integer.parseInt(id))
-                .title(title)
-                .description(description)
-                .price(BigDecimal.valueOf(Double.parseDouble(price)))
-                .author(Author.builder().id(Integer.parseInt(authorId)).build())
-                .genre(Genre.builder().id(Integer.parseInt(genreId)).build())
-                .build());
+        bookService.update(
+                Integer.parseInt(id), title, description, new BigDecimal(price),
+                Integer.parseInt(authorId), Integer.parseInt(genreId)
+        );
     }
 
     @ShellMethod(value = "Delete book by id", key = {"book delete"})
     public void deleteBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
-        bookDao.deleteById(Integer.parseInt(id));
+        bookService.deleteById(Integer.parseInt(id));
     }
 }

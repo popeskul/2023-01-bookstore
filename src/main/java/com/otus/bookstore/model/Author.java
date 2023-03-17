@@ -14,7 +14,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public final class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private final int id;
 

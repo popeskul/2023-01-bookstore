@@ -2,6 +2,8 @@ package com.otus.bookstore.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import java.math.BigDecimal;
 import java.util.Objects;
@@ -12,6 +14,8 @@ import java.util.Objects;
 @AllArgsConstructor
 @Setter
 @Getter
+@NamedEntityGraph(name = "book-entity-graph",
+        attributeNodes = {@NamedAttributeNode("author"), @NamedAttributeNode("genre")})
 public final class Book {
 
     @Id
@@ -30,11 +34,13 @@ public final class Book {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "author_id", nullable = false)
+    @Fetch(FetchMode.JOIN)
     @ToString.Exclude
     private final Author author;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "genre_id", nullable = false)
+    @Fetch(FetchMode.JOIN)
     @ToString.Exclude
     private final Genre genre;
 
