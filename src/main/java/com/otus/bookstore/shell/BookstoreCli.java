@@ -29,7 +29,7 @@ public class BookstoreCli {
     }
 
     @ShellMethod(value = "Create book", key = {"book create"})
-    public Optional<Integer> createBook(
+    public Optional<Long> createBook(
             @ShellOption(defaultValue = "title") String title,
             @ShellOption(defaultValue = "description") String description,
             @ShellOption(defaultValue = "price") String price,
@@ -58,6 +58,6 @@ public class BookstoreCli {
     public void deleteBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
-        bookService.deleteById(Integer.parseInt(id));
+        bookService.deleteById(Long.parseLong(id));
     }
 }

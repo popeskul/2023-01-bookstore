@@ -3,7 +3,6 @@ package com.otus.bookstore.repository.impl;
 import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.repository.GenreRepository;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
@@ -45,11 +44,5 @@ public class GenreRepositoryJpa implements GenreRepository {
         if (genre != null) {
             entityManager.remove(genre);
         }
-    }
-
-    @Override
-    public void deleteAll() {
-        Query query = entityManager.createQuery("DELETE FROM Genre");
-        query.executeUpdate();
     }
 }

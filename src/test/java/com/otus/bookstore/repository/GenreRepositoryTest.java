@@ -98,14 +98,4 @@ public class GenreRepositoryTest {
         assertThat(actual).isNotNull();
         assertThat(actual.isPresent()).isFalse();
     }
-
-    @Test
-    public void shouldDeleteAllGenres() {
-        entityManager.getEntityManager().createNativeQuery("DELETE FROM book").executeUpdate();
-
-        Genre genre = Genre.builder().name(name).build();
-        genreRepository.save(genre);
-        genreRepository.deleteAll();
-        assertThat(genreRepository.findAll()).isEmpty();
-    }
 }

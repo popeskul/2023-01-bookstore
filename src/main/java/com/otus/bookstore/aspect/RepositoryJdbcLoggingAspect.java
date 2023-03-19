@@ -20,7 +20,7 @@ public class RepositoryJdbcLoggingAspect {
 
         logger.info("Entering {}.{}() with arguments {}", className, methodName, args);
 
-        Object result = null;
+        Object result;
         try {
             result = joinPoint.proceed();
         } catch (Throwable e) {

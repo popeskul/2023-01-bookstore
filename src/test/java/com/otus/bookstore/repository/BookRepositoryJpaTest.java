@@ -1,11 +1,12 @@
 package com.otus.bookstore.repository;
 
+import com.otus.bookstore.exception.CommentErrorSavedException;
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
+import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.model.Genre;
-import com.otus.bookstore.repository.impl.AuthorRepositoryJpa;
 import com.otus.bookstore.repository.impl.BookRepositoryJpa;
-import com.otus.bookstore.repository.impl.GenreRepositoryJpa;
+import com.otus.bookstore.repository.impl.CommentRepositoryJpa;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,30 +16,25 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({BookRepositoryJpa.class, AuthorRepositoryJpa.class, GenreRepositoryJpa.class})
+@Import({BookRepositoryJpa.class, CommentRepositoryJpa.class})
 class BookRepositoryJpaTest {
     private static final String title = "Book1";
     private static final String title2 = "Book2";
     private static final String description = "Description1";
     private static final String description2 = "Description2";
     private static final BigDecimal price = BigDecimal.valueOf(100.0);
-    private static final int bookId = 11;
-
-    @Autowired
-    private AuthorRepository authorRepository;
-
-    @Autowired
-    private GenreRepository genreRepository;
 
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private CommentRepository commentRepository;
 
     @Autowired
     private TestEntityManager entityManager;
@@ -49,11 +45,9 @@ class BookRepositoryJpaTest {
 
     @BeforeEach
     void setUp() {
-        initialBook = entityManager.find(Book.class, 1);
-        initialAuthor = entityManager.find(Author.class, initialBook.getAuthor().getId());
-        initialGenre = entityManager.find(Genre.class, initialBook.getGenre().getId());
-
-        entityManager.clear();
+        initialBook = bookRepository.findAll().get(0);
+        initialAuthor = initialBook.getAuthor();
+        initialGenre = initialBook.getGenre();
     }
 
     @Test
@@ -114,7 +108,6 @@ class BookRepositoryJpaTest {
     void shouldFindById() {
         // enable statistics
         SessionFactory sessionFactory = entityManager.getEntityManager().getEntityManagerFactory().unwrap(SessionFactory.class);
-        sessionFactory.getStatistics().clear();
         sessionFactory.getStatistics().setStatisticsEnabled(true);
 
         // when
@@ -146,13 +139,19 @@ class BookRepositoryJpaTest {
     }
 
     @Test
-    void shouldFindAllBooks() {
+    void shouldFindAllBooks() throws CommentErrorSavedException {
+        Comment comment = Comment.builder()
+                .text("Comment1")
+                .author(initialAuthor)
+                .book(initialBook)
+                .build();
+
+        commentRepository.save(comment);
+
         // enable statistics
         SessionFactory sessionFactory = entityManager.getEntityManager().getEntityManagerFactory().unwrap(SessionFactory.class);
         sessionFactory.getStatistics().clear();
         sessionFactory.getStatistics().setStatisticsEnabled(true);
-
-        System.out.println("entityManager = ");
 
         List<Book> books = bookRepository.findAll();
 
@@ -160,21 +159,26 @@ class BookRepositoryJpaTest {
         assertThat(books).hasSize(4);
 
         // check statistics
-        Arrays.stream(sessionFactory.getStatistics().getQueries()).forEach(System.out::println);
         assertThat(sessionFactory.getStatistics().getPrepareStatementCount()).isEqualTo(1);
     }
 
     @Test
     void shouldDeleteById() {
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM book_comment").executeUpdate();
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM comment").executeUpdate();
+
         bookRepository.deleteById(initialBook.getId());
 
-        Book actual = entityManager.find(Book.class, initialBook.getId());
+        Optional<Book> actual = bookRepository.findById(initialBook.getId());
 
-        assertThat(actual).isNull();
+        assertThat(actual).isNotPresent();
     }
 
     @Test
     void shouldDeleteAll() {
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM book_comment").executeUpdate();
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM comment").executeUpdate();
+
         List<Book> before = bookRepository.findAll();
 
         assertThat(before).isNotEmpty();

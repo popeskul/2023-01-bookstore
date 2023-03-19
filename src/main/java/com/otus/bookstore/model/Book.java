@@ -6,22 +6,26 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "book")
 @Builder(toBuilder = true)
 @AllArgsConstructor
-@Setter
 @Getter
-@NamedEntityGraph(name = "book-entity-graph",
-        attributeNodes = {@NamedAttributeNode("author"), @NamedAttributeNode("genre")})
+@NamedEntityGraph(name = "book-entity-graph", attributeNodes = {
+        @NamedAttributeNode("author"),
+        @NamedAttributeNode("genre"),
+        @NamedAttributeNode("comments")
+})
 public final class Book {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private final int id;
+    private final long id;
 
     @Column(name = "title", nullable = false)
     private final String title;
@@ -43,6 +47,11 @@ public final class Book {
     @Fetch(FetchMode.JOIN)
     @ToString.Exclude
     private final Genre genre;
+
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    @Fetch(FetchMode.JOIN)
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
 
     public Book() {
         this.id = 0;

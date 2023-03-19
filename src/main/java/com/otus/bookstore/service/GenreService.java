@@ -15,6 +15,4 @@ public interface GenreService {
     Optional<Genre> getById(int id);
 
     List<Genre> getAll();
-
-    void deleteAll();
 }

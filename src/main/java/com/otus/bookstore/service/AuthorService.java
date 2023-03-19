@@ -15,6 +15,4 @@ public interface AuthorService {
     void update(Author author);
 
     void deleteById(int id);
-
-    void deleteAll();
 }

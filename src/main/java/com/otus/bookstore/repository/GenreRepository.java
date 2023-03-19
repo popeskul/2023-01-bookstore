@@ -13,6 +13,4 @@ public interface GenreRepository {
     Optional<Genre> save(Genre author);
 
     void deleteById(int id);
-
-    void deleteAll();
 }

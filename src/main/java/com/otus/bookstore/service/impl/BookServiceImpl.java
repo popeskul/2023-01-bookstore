@@ -37,12 +37,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Optional<Book> getById(int id) {
+    public Optional<Book> getById(long id) {
         return bookRepository.findById(id);
     }
 
     @Override
-    public Optional<Integer> create(String title, String description, BigDecimal price, int authorId, int genreId) {
+    public Optional<Long> create(String title, String description, BigDecimal price, int authorId, int genreId) {
         Author author = authorService.getById(authorId).orElseThrow(AuthorNotFoundException::new);
 
         Genre genre = genreService.getById(genreId).orElseThrow(GenreNotFoundException::new);
@@ -60,7 +60,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void update(int id, String title, String description, BigDecimal price, int authorId, int genreId) {
+    public void update(long id, String title, String description, BigDecimal price, int authorId, int genreId) {
         if (id <= 0) {
             throw new BookBadRequestException();
         }
@@ -82,7 +82,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void deleteById(int id) {
+    public void deleteById(long id) {
         bookRepository.deleteById(id);
     }
 }

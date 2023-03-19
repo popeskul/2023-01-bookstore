@@ -2,7 +2,6 @@ package com.otus.bookstore.repository;
 
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.repository.impl.AuthorRepositoryJpa;
-import com.otus.bookstore.repository.impl.BookRepositoryJpa;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -15,7 +14,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({AuthorRepositoryJpa.class, BookRepositoryJpa.class})
+@Import({AuthorRepositoryJpa.class})
 class AuthorRepositoryTest {
     private static final String name = "Some Doe";
     private static final String name2 = "Some Doe2";
@@ -85,8 +84,9 @@ class AuthorRepositoryTest {
                 .name(name)
                 .email(email)
                 .build();
-        entityManager.persist(author);
-        entityManager.flush();
+        authorRepository.save(author);
+
+        entityManager.clear();
 
         Optional<Author> foundAuthor = authorRepository.findById(author.getId());
 
@@ -102,6 +102,8 @@ class AuthorRepositoryTest {
     @Test
     void shouldDeleteAuthorById() {
         // delete book first to avoid constraint violation
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM book_comment").executeUpdate();
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM comment").executeUpdate();
         entityManager.getEntityManager().createNativeQuery("DELETE FROM book").executeUpdate();
 
         // Arrange
@@ -118,34 +120,5 @@ class AuthorRepositoryTest {
         // Assert
         Optional<Author> deletedAuthor = authorRepository.findById(author.getId());
         assertThat(deletedAuthor).isEmpty();
-    }
-
-    @Test
-    void shouldDeleteAllAuthors() {
-        // delete book first to avoid constraint violation
-        entityManager.getEntityManager().createNativeQuery("DELETE FROM book").executeUpdate();
-
-        // Arrange
-        Author author = Author.builder()
-                .name(name)
-                .email(email)
-                .build();
-
-        Author author2 = Author.builder()
-                .name(name2)
-                .email(email2)
-                .build();
-
-        entityManager.persist(author);
-        entityManager.persist(author2);
-
-        entityManager.flush();
-
-        // Act
-        authorRepository.deleteAll();
-
-        // Assert
-        List<Author> authors = authorRepository.findAll();
-        assertThat(authors).isEmpty();
     }
 }

@@ -3,7 +3,6 @@ package com.otus.bookstore.service;
 import com.otus.bookstore.exception.AuthorBadRequestException;
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.service.impl.AuthorServiceImpl;
-import com.otus.bookstore.service.impl.BookServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-@Import({AuthorServiceImpl.class, BookServiceImpl.class})
+@Import({AuthorServiceImpl.class})
 class AuthorServiceImplTest {
     private static final String name = "Some Doe";
     private static final String name2 = "Some Doe2";
@@ -31,9 +30,6 @@ class AuthorServiceImplTest {
 
     @Autowired
     private AuthorService authorService;
-
-    @Autowired
-    private BookService bookService;
 
     @Test
     void shouldCreateAuthor() {
@@ -174,35 +170,5 @@ class AuthorServiceImplTest {
         Optional<Author> actual = authorService.getById(createAuthor.get().getId());
 
         assertThat(actual).isNotPresent();
-    }
-
-    @Test
-    void shouldDeleteAllAuthors() {
-        // delete books before authors
-        bookService.getAll().forEach(book -> {
-            bookService.deleteById(book.getId());
-        });
-
-        // Arrange
-        Author author1 = unsavedAuthor.toBuilder().id(100).build();
-        Optional<Integer> id1 = authorService.create(author1);
-
-        assertThat(id1).isPresent();
-        assertThat(id1.get()).isPositive();
-
-        Author author2 = unsavedAuthor.toBuilder().id(101).build();
-        Optional<Integer> id2 = authorService.create(author2);
-
-        assertThat(id1).isPresent();
-        assertThat(id1.get()).isPositive();
-
-        // Act
-        authorService.deleteAll();
-
-        // Assert
-        List<Author> authors = authorService.getAll();
-
-        assertThat(authors).isNotNull();
-        assertThat(authors).isEmpty();
     }
 }

@@ -4,7 +4,6 @@ import com.otus.bookstore.model.Author;
 import com.otus.bookstore.repository.AuthorRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import org.springframework.stereotype.Repository;
 
@@ -51,11 +50,5 @@ public class AuthorRepositoryJpa implements AuthorRepository {
         if (author != null) {
             em.remove(author);
         }
-    }
-
-    @Override
-    public void deleteAll() {
-        Query query = em.createQuery("DELETE FROM Author");
-        query.executeUpdate();
     }
 }

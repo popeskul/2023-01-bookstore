@@ -21,8 +21,15 @@ public class BookRepositoryJpa implements BookRepository {
     }
 
     @Override
-    public Optional<Book> findById(int id) {
-        return Optional.ofNullable(entityManager.find(Book.class, id));
+    public Optional<Book> findById(long id) {
+        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
+
+        TypedQuery<Book> query = entityManager.createQuery("SELECT b FROM Book b WHERE b.id = :id", Book.class);
+        query.setParameter("id", id);
+
+        query.setHint("javax.persistence.fetchgraph", entityGraph);
+
+        return query.getResultList().stream().findFirst();
     }
 
     @Override
@@ -51,7 +58,7 @@ public class BookRepositoryJpa implements BookRepository {
     }
 
     @Override
-    public void deleteById(int id) {
+    public void deleteById(long id) {
         Book book = entityManager.find(Book.class, id);
         if (book != null) {
             entityManager.remove(book);

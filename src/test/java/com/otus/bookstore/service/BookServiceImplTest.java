@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +50,7 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Integer> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
@@ -115,7 +116,7 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Integer> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
@@ -132,28 +133,9 @@ public class BookServiceImplTest {
 
     @Test
     void shouldGetAll() {
-        int genreId = genreService.getAll().get(0).getId();
-
-        assertThat(genreId).isPositive();
-
-        int authorId = authorService.getAll().get(0).getId();
-
-        assertThat(authorId).isPositive();
-
-        // Act
-        Optional<Integer> id = bookService.create(title, description, price, genreId, authorId);
-
-        // Assert
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
-
-        Optional<Book> actual = bookService.getById(id.get());
-        assertThat(actual).isPresent();
-        assertThat(actual.get().getTitle()).isEqualTo(title);
-        assertThat(actual.get().getDescription()).isEqualTo(description);
-        assertThat(actual.get().getPrice().longValue()).isEqualTo(price.longValue());
-        assertThat(actual.get().getGenre().getId()).isEqualTo(genreId);
-        assertThat(actual.get().getAuthor().getId()).isEqualTo(authorId);
+        List<Book> actual = bookService.getAll();
+        assertThat(actual).isNotNull();
+        assertThat(actual).isNotEmpty();
     }
 
     @Test
@@ -167,7 +149,7 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Integer> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
@@ -221,7 +203,7 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Integer> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
@@ -251,7 +233,7 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Integer> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
