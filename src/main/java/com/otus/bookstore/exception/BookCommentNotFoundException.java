@@ -1,6 +1,6 @@
 package com.otus.bookstore.exception;
 
-public class BookCommentNotFoundException extends Exception {
+public class BookCommentNotFoundException extends CoreException {
     public static final String BOOK_COMMENT_NOT_FOUND = "BookComment with bookId %d and commentId %d not found";
 
     public BookCommentNotFoundException(long bookId, long commentId) {
