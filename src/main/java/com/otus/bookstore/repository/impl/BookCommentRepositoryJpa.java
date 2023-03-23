@@ -1,22 +1,21 @@
 package com.otus.bookstore.repository.impl;
 
-import com.otus.bookstore.exception.BookCommentDeleteException;
-import com.otus.bookstore.exception.BookCommentErrorSavedException;
 import com.otus.bookstore.model.BookComment;
 import com.otus.bookstore.model.BookCommentId;
 import com.otus.bookstore.repository.BookCommentRepository;
-import jakarta.persistence.EntityGraph;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public class BookCommentRepositoryJpa implements BookCommentRepository {
+    public static final String ERROR_NOT_FOUND = "Unable to find book comment with id: %s";
+    public static final String ERROR_INVALID_BOOK_COMMENT = "Invalid Book Comment: %s";
+
     @PersistenceContext
 
     private final EntityManager entityManager;
@@ -27,52 +26,73 @@ public class BookCommentRepositoryJpa implements BookCommentRepository {
     }
 
     @Override
-    public BookComment save(BookComment bookComment) throws BookCommentErrorSavedException {
+    public BookComment save(BookComment bookComment) {
         try {
-            if (bookComment.getId() != null &&
-                    (bookComment.getId().getBookId() != 0 && bookComment.getId().getCommentId() != 0)) {
-                entityManager.persist(bookComment);
-                return bookComment;
-            } else {
-                return entityManager.merge(bookComment);
+            if (bookComment.getId() == null ||
+                    bookComment.getId().getBookId() == 0 ||
+                    bookComment.getId().getCommentId() == 0) {
+                throw new InvalidParameterException(String.format(ERROR_INVALID_BOOK_COMMENT, bookComment));
             }
-        } catch (Exception e) {
-            throw new BookCommentErrorSavedException(e.getMessage());
+
+            entityManager.persist(bookComment);
+            return bookComment;
+        } catch (RuntimeException e) {
+            throw new EntityNotFoundException(String.format(ERROR_NOT_FOUND, e.getMessage()), e);
         }
     }
 
     @Override
     public List<BookComment> findAll() {
-        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-comment-entity-graph");
+        try {
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-comment-entity-graph");
 
-        TypedQuery<BookComment> query = entityManager.createQuery("SELECT bc FROM BookComment bc", BookComment.class);
+            TypedQuery<BookComment> query = entityManager.createQuery("SELECT bc FROM BookComment bc", BookComment.class);
 
-        query.setHint("javax.persistence.fetchgraph", entityGraph);
+            query.setHint("javax.persistence.fetchgraph", entityGraph);
 
-        return query.getResultList();
+            return query.getResultList();
+        } catch (RuntimeException e) {
+            throw new EntityNotFoundException(String.format(ERROR_NOT_FOUND, e.getMessage()));
+        }
     }
 
     @Override
     public Optional<BookComment> findById(BookCommentId id) {
-        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-comment-entity-graph");
+        if (id == null) {
+            return Optional.empty();
+        }
 
-        TypedQuery<BookComment> query = entityManager.createQuery("SELECT bc FROM BookComment bc WHERE bc.id = :id", BookComment.class);
-        query.setParameter("id", id);
+        try {
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-comment-entity-graph");
 
-        query.setHint("javax.persistence.fetchgraph", entityGraph);
+            TypedQuery<BookComment> query = entityManager.createQuery(
+                            "SELECT bc FROM BookComment bc WHERE bc.id = :id", BookComment.class)
+                    .setParameter("id", id)
+                    .setHint("javax.persistence.fetchgraph", entityGraph);
 
-        return query.getResultList().stream().findFirst();
+            return Optional.of(query.getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
+        } catch (RuntimeException e) {
+            throw new EntityNotFoundException(String.format(ERROR_NOT_FOUND, e.getMessage()), e);
+        }
     }
 
     @Override
-    public void deleteByBookCommentId(BookCommentId id) {
+    public boolean deleteById(BookCommentId id) {
         try {
-            BookComment bookComment = entityManager.find(BookComment.class, id);
-            if (bookComment != null) {
-                entityManager.remove(bookComment);
+            if (id == null) {
+                return false;
             }
+
+            BookComment bookComment = entityManager.find(BookComment.class, id);
+            if (bookComment == null) {
+                return false;
+            }
+            entityManager.remove(bookComment);
+            return true;
         } catch (RuntimeException e) {
-            throw new BookCommentDeleteException(id.getBookId(), id.getCommentId());
+            throw new EntityNotFoundException(String.format(ERROR_NOT_FOUND, e.getMessage()), e);
         }
     }
 }

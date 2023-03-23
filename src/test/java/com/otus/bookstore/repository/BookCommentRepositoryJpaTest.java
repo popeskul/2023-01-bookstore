@@ -1,11 +1,9 @@
 package com.otus.bookstore.repository;
 
-import com.otus.bookstore.exception.BookCommentErrorSavedException;
 import com.otus.bookstore.model.*;
 import com.otus.bookstore.repository.impl.BookCommentRepositoryJpa;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -63,7 +61,7 @@ class BookCommentRepositoryJpaTest {
     }
 
     @Test
-    void shouldSaveBookComment() throws BookCommentErrorSavedException {
+    void shouldSaveBookComment() {
         // create new comment
         Comment newComment = comment.toBuilder().id(0L).build();
 
@@ -183,7 +181,7 @@ class BookCommentRepositoryJpaTest {
         assertThat(findBookComment.getBook()).isEqualTo(book);
 
         // delete
-        bookCommentRepository.deleteByBookCommentId(findBookComment.getId());
+        bookCommentRepository.deleteById(findBookComment.getId());
         entityManager.flush();
 
         // check
@@ -193,32 +191,6 @@ class BookCommentRepositoryJpaTest {
         // check book
         Book actualBook = entityManager.find(Book.class, book.getId());
         assertThat(actualBook).isNotNull();
-    }
-
-    @Test()
-    @DisplayName("should delete book comment by book comment object and don't delete comment and book")
-    void shouldDeleteAll() {
-        // prepare
-        List<BookComment> bookComments = bookCommentRepository.findAll();
-
-        assertThat(bookComments).isNotNull();
-        assertThat(bookComments.size()).isEqualTo(2);
-
-        // delete
-        entityManager.getEntityManager().createQuery("delete from BookComment").executeUpdate();
-        entityManager.flush();
-
-        // check
-        List<BookComment> actualBookComments = bookCommentRepository.findAll();
-        assertThat(actualBookComments).isEmpty();
-
-        bookComments.forEach(bookComment -> {
-            BookComment actualBookComment = entityManager.find(BookComment.class, bookComment.getId());
-            assertThat(actualBookComment).isNotNull();
-
-            Comment actualComment = entityManager.find(Comment.class, bookComment.getComment().getId());
-            assertThat(actualComment).isNotNull();
-        });
     }
 
     @Test
@@ -240,7 +212,7 @@ class BookCommentRepositoryJpaTest {
     void shouldDeleteBookComment() {
         BookCommentId id = new BookCommentId(1L, 1L);
 
-        bookCommentRepository.deleteByBookCommentId(id);
+        bookCommentRepository.deleteById(id);
 
         BookComment bookComment = entityManager.find(BookComment.class, id);
 

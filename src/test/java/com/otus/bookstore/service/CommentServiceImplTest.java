@@ -1,11 +1,12 @@
 package com.otus.bookstore.service;
 
-import com.otus.bookstore.exception.CommentErrorSavedException;
-import com.otus.bookstore.exception.CommentNotFoundException;
+import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.*;
 import com.otus.bookstore.repository.BookCommentRepository;
 import com.otus.bookstore.repository.CommentRepository;
+import com.otus.bookstore.repository.impl.CommentRepositoryJpa;
 import com.otus.bookstore.service.impl.CommentServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
@@ -60,7 +62,7 @@ public class CommentServiceImplTest {
     }
 
     @Test
-    void shouldSaveComment() throws CommentErrorSavedException {
+    void shouldSaveComment() {
         when(commentRepository.save(comment)).thenReturn(comment);
         when(bookCommentRepository.save(bookComment)).thenReturn(bookComment);
 
@@ -70,11 +72,11 @@ public class CommentServiceImplTest {
 
     @Test
     void shouldThrowExceptionWhenSaveComment() {
-        when(commentRepository.save(comment)).thenThrow(new CommentErrorSavedException());
+        when(commentRepository.save(comment)).thenThrow(new EntitySaveException(String.format(CommentRepositoryJpa.ERROR_WHILE_SAVING_COMMENT, comment)));
 
         assertThatThrownBy(() -> commentService.save(comment))
-                .isInstanceOf(CommentErrorSavedException.class)
-                .hasMessageContaining(CommentErrorSavedException.ERROR_SAVED);
+                .isInstanceOf(EntitySaveException.class)
+                .hasMessageContaining(String.format(CommentRepositoryJpa.ERROR_WHILE_SAVING_COMMENT, comment));
     }
 
     @Test
@@ -87,7 +89,7 @@ public class CommentServiceImplTest {
     }
 
     @Test
-    void shouldGetById() throws CommentNotFoundException {
+    void shouldGetById() {
         when(commentRepository.findById(ID)).thenReturn(java.util.Optional.of(comment));
 
         Optional<Comment> commentById = commentService.findById(ID);
@@ -96,26 +98,26 @@ public class CommentServiceImplTest {
     }
 
     @Test
-    @DisplayName("should throw CommentNotFoundException result of get comment by id is empty")
+    @DisplayName("should throw EntityNotFoundException result of get comment by id is empty")
     void shouldThrowExceptionWhenResultGetByIdIsEmpty() {
         when(commentRepository.findById(ID)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> commentService.findById(ID))
-                .isInstanceOf(CommentNotFoundException.class)
-                .hasMessageContaining(String.format(CommentNotFoundException.ERROR_NOT_FOUND, ID));
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining(String.format(CommentServiceImpl.ERROR_NOT_FOUND_AUTHOR, ID));
     }
 
     @Test
     void shouldThrowExceptionWhenDeleteCommentById() {
-        doThrow(new IllegalArgumentException()).when(commentRepository).deleteById(ID);
+        doThrow(new InvalidParameterException()).when(commentRepository).deleteById(ID);
 
         assertThatThrownBy(() -> commentService.deleteById(ID))
-                .isInstanceOf(CommentNotFoundException.class)
-                .hasMessageContaining(String.format(CommentNotFoundException.ERROR_NOT_FOUND, ID));
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining(String.format(CommentServiceImpl.ERROR_NOT_FOUND_AUTHOR, ID));
     }
 
     @Test
-    void shouldDeleteCommentById() throws CommentNotFoundException {
+    void shouldDeleteCommentById() {
         when(commentRepository.findById(ID)).thenReturn(Optional.of(comment));
 
         commentService.deleteById(ID);

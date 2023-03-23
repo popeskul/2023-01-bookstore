@@ -1,6 +1,6 @@
 package com.otus.bookstore.repository.impl;
 
-import com.otus.bookstore.exception.CommentErrorSavedException;
+import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.repository.CommentRepository;
 import jakarta.persistence.EntityGraph;
@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -15,6 +16,8 @@ import java.util.Optional;
 
 @Repository
 public class CommentRepositoryJpa implements CommentRepository {
+    public static final String ERROR_WHILE_SAVING_COMMENT = "Error while saving comment: %s";
+
     @PersistenceContext
     private final EntityManager entityManager;
 
@@ -24,36 +27,58 @@ public class CommentRepositoryJpa implements CommentRepository {
     }
 
     @Override
-    public Comment save(Comment comment) throws CommentErrorSavedException {
+    public Comment save(Comment comment) {
         try {
+            if (comment == null) {
+                throw new IllegalArgumentException("Comment cannot be null");
+            }
             entityManager.persist(comment);
             return comment;
-        } catch (Exception e) {
-            throw new CommentErrorSavedException();
+        } catch (DataAccessException e) {
+            throw new EntitySaveException(String.format(ERROR_WHILE_SAVING_COMMENT, comment), e);
         }
     }
 
     @Override
     public List<Comment> findAll() {
-        EntityGraph<?> entityGraph = entityManager.getEntityGraph("comment-entity-graph");
+        try {
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph("comment-entity-graph");
 
-        TypedQuery<Comment> query = entityManager.createQuery("SELECT c FROM Comment c", Comment.class);
+            TypedQuery<Comment> query = entityManager.createQuery("SELECT c FROM Comment c", Comment.class);
 
-        query.setHint("javax.persistence.fetchgraph", entityGraph);
+            query.setHint("javax.persistence.fetchgraph", entityGraph);
 
-        return query.getResultList();
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new EntitySaveException(String.format(ERROR_WHILE_SAVING_COMMENT, 0));
+        }
     }
 
     @Override
     public Optional<Comment> findById(Long id) {
-        return Optional.ofNullable(entityManager.find(Comment.class, id));
+        try {
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph("comment-entity-graph");
+
+            TypedQuery<Comment> query = entityManager.createQuery("SELECT c FROM Comment c WHERE c.id = :id", Comment.class);
+            query.setParameter("id", id);
+
+            query.setHint("javax.persistence.fetchgraph", entityGraph);
+
+            return query.getResultList().stream().findFirst();
+        } catch (Exception e) {
+            throw new EntitySaveException(String.format(ERROR_WHILE_SAVING_COMMENT, id));
+        }
     }
 
     @Override
     public void deleteById(Long id) {
-        Comment comment = entityManager.find(Comment.class, id);
-        if (comment != null) {
-            entityManager.remove(comment);
+        try {
+            Comment comment = entityManager.find(Comment.class, id);
+            if (comment != null) {
+                entityManager.remove(comment);
+            }
+        } catch (DataAccessException e) {
+            throw new EntitySaveException(String.format(ERROR_WHILE_SAVING_COMMENT, id), e);
         }
     }
 }

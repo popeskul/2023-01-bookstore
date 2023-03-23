@@ -44,10 +44,6 @@ class CommentTest {
         Comment commentTheSame2 = commentTemplate.toBuilder().build();
         Comment commentDifferent = commentTemplate.toBuilder().id(31L).text("another text").build();
 
-        System.out.println("commentTheSame: " + commentTheSame);
-        System.out.println("commentTheSame2: " + commentTheSame2);
-        System.out.println("commentDifferent: " + commentDifferent);
-
         // Reflexivity
         assertEquals(commentTheSame, commentTheSame2);
 

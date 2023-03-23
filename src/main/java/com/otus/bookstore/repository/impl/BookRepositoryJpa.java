@@ -1,19 +1,22 @@
 package com.otus.bookstore.repository.impl;
 
-import com.otus.bookstore.exception.BookErrorSavedException;
+import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.repository.BookRepository;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
 @Repository
 public class BookRepositoryJpa implements BookRepository {
+    public static final String ERROR_SAVE_BOOK = "Book cannot be saved %s";
+
     private final EntityManager entityManager;
 
     public BookRepositoryJpa(EntityManager entityManager) {
@@ -22,25 +25,33 @@ public class BookRepositoryJpa implements BookRepository {
 
     @Override
     public Optional<Book> findById(long id) {
-        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
+        try {
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
 
-        TypedQuery<Book> query = entityManager.createQuery("SELECT b FROM Book b WHERE b.id = :id", Book.class);
-        query.setParameter("id", id);
+            TypedQuery<Book> query = entityManager.createQuery("SELECT b FROM Book b WHERE b.id = :id", Book.class);
+            query.setParameter("id", id);
 
-        query.setHint("javax.persistence.fetchgraph", entityGraph);
+            query.setHint("javax.persistence.fetchgraph", entityGraph);
 
-        return query.getResultList().stream().findFirst();
+            return query.getResultList().stream().findFirst();
+        } catch (Exception e) {
+            throw new EntitySaveException(String.format(ERROR_SAVE_BOOK, id));
+        }
     }
 
     @Override
     public List<Book> findAll() {
-        EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
+        try {
+            EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
 
-        TypedQuery<Book> query = entityManager.createQuery("SELECT b FROM Book b", Book.class);
+            TypedQuery<Book> query = entityManager.createQuery("SELECT b FROM Book b", Book.class);
 
-        query.setHint("javax.persistence.fetchgraph", entityGraph);
+            query.setHint("javax.persistence.fetchgraph", entityGraph);
 
-        return query.getResultList();
+            return query.getResultList();
+        } catch (Exception e) {
+            throw new EntitySaveException(String.format(ERROR_SAVE_BOOK, 0));
+        }
     }
 
     @Override
@@ -53,21 +64,23 @@ public class BookRepositoryJpa implements BookRepository {
                 return Optional.of(entityManager.merge(book));
             }
         } catch (Exception e) {
-            throw new BookErrorSavedException();
+            throw new EntitySaveException(book);
         }
     }
 
     @Override
     public void deleteById(long id) {
-        Book book = entityManager.find(Book.class, id);
-        if (book != null) {
-            entityManager.remove(book);
-        }
-    }
+        try {
+            if (id <= 0) {
+                throw new InvalidParameterException(String.format(ERROR_SAVE_BOOK, id));
+            }
 
-    @Override
-    public void deleteAll() {
-        Query query = entityManager.createQuery("DELETE FROM Book");
-        query.executeUpdate();
+            Book book = entityManager.find(Book.class, id);
+            if (book != null) {
+                entityManager.remove(book);
+            }
+        } catch (DataAccessException e) {
+            throw new EntitySaveException(String.format(ERROR_SAVE_BOOK, id));
+        }
     }
 }

@@ -1,9 +1,9 @@
 package com.otus.bookstore.service;
 
-import com.otus.bookstore.exception.BookCommentErrorSavedException;
-import com.otus.bookstore.exception.BookCommentNotFoundException;
 import com.otus.bookstore.model.*;
 import com.otus.bookstore.repository.BookCommentRepository;
+import com.otus.bookstore.service.impl.BookCommentServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +21,7 @@ import static org.assertj.core.api.Java6Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
-public class BookCommentImplTest {
+public class BookCommentServiceImplTest {
     private static final BigDecimal PRICE = BigDecimal.valueOf(19.99);
     private static final long BOOK_ID = 1L;
     private static final long COMMENT_ID = 1L;
@@ -57,7 +58,7 @@ public class BookCommentImplTest {
     }
 
     @Test
-    void shouldSaveNewBookComment() throws BookCommentErrorSavedException {
+    void shouldSaveNewBookComment() {
         when(bookCommentRepository.save(bookComment)).thenReturn(bookComment);
 
         BookComment result = bookCommentService.save(bookComment);
@@ -67,12 +68,12 @@ public class BookCommentImplTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenSaveNewBookComment() throws BookCommentErrorSavedException {
-        doThrow(new IllegalArgumentException()).when(bookCommentRepository).save(bookComment);
+    void shouldThrowExceptionWhenSaveNewBookComment() {
+        doThrow(new InvalidParameterException()).when(bookCommentRepository).save(bookComment);
 
         assertThatThrownBy(() -> bookCommentService.save(bookComment))
-                .isInstanceOf(BookCommentErrorSavedException.class)
-                .hasMessage(BookCommentErrorSavedException.ERROR_SAVED);
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage(String.format(BookCommentServiceImpl.BOOK_COMMENT_WITH_ID_NOT_FOUND, bookComment));
     }
 
     @Test
@@ -87,7 +88,7 @@ public class BookCommentImplTest {
 
     @Test
     @DisplayName("should get book comment by id")
-    void shouldGetById() throws BookCommentNotFoundException {
+    void shouldGetById() {
         when(bookCommentRepository.findById(bookCommentId)).thenReturn(Optional.of(bookComment));
 
         Optional<BookComment> result = bookCommentService.getById(bookCommentId);
@@ -97,51 +98,34 @@ public class BookCommentImplTest {
     }
 
     @Test
-    @DisplayName("should throw exception when result of get book comment by id is empty")
-    void shouldThrowExceptionWhenResultOfGetByIdIsEmpty() {
-        when(bookCommentRepository.findById(bookCommentId)).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> bookCommentService.getById(bookCommentId))
-                .isInstanceOf(BookCommentNotFoundException.class)
-                .hasMessage(String.format(
-                        BookCommentNotFoundException.BOOK_COMMENT_NOT_FOUND,
-                        bookCommentId.getBookId(), bookCommentId.getCommentId()
-                ));
-    }
-
-    @Test
     @DisplayName("should throw exception when try to get book comment by id")
     void shouldThrowExceptionWhenTryToGetById() {
-        doThrow(new RuntimeException()).when(bookCommentRepository).findById(bookCommentId);
+        doThrow(new EntityNotFoundException(String.format(BookCommentServiceImpl.BOOK_COMMENT_WITH_ID_NOT_FOUND, bookCommentId)))
+                .when(bookCommentRepository).findById(bookCommentId);
 
         assertThatThrownBy(() -> bookCommentService.getById(bookCommentId))
-                .isInstanceOf(BookCommentNotFoundException.class)
-                .hasMessage(String.format(
-                        BookCommentNotFoundException.BOOK_COMMENT_NOT_FOUND,
-                        bookCommentId.getBookId(), bookCommentId.getCommentId()
-                ));
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage(String.format(BookCommentServiceImpl.BOOK_COMMENT_WITH_ID_NOT_FOUND, bookCommentId));
     }
 
     @Test
     @DisplayName("should delete book comment by id")
-    void shouldDeleteById() throws BookCommentNotFoundException {
-        when(bookCommentRepository.findById(bookCommentId)).thenReturn(Optional.of(bookComment));
+    void shouldDeleteById() {
+        when(bookCommentRepository.deleteById(bookCommentId)).thenReturn(true);
 
         bookCommentService.deleteById(bookCommentId);
 
-        verify(bookCommentRepository, times(1)).deleteByBookCommentId(bookCommentId);
+        verify(bookCommentRepository, times(1)).deleteById(bookCommentId);
     }
 
     @Test
     @DisplayName("should throw exception when try to delete book comment by BookCommentId")
     void shouldThrowExceptionWhenTryToDeleteById() {
-        doThrow(new RuntimeException()).when(bookCommentRepository).deleteByBookCommentId(bookCommentId);
+        doThrow(new EntityNotFoundException(String.format(BookCommentServiceImpl.BOOK_COMMENT_WITH_ID_NOT_FOUND, bookCommentId)))
+                .when(bookCommentRepository).deleteById(bookCommentId);
 
         assertThatThrownBy(() -> bookCommentService.deleteById(bookCommentId))
-                .isInstanceOf(BookCommentNotFoundException.class)
-                .hasMessage(String.format(
-                        BookCommentNotFoundException.BOOK_COMMENT_NOT_FOUND,
-                        bookCommentId.getBookId(), bookCommentId.getCommentId()
-                ));
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessage(String.format(BookCommentServiceImpl.BOOK_COMMENT_WITH_ID_NOT_FOUND, bookCommentId));
     }
 }

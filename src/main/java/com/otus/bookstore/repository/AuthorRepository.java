@@ -12,5 +12,5 @@ public interface AuthorRepository {
 
     Optional<Author> save(Author author);
 
-    void deleteById(int id);
+    Optional<Author> deleteById(int id);
 }

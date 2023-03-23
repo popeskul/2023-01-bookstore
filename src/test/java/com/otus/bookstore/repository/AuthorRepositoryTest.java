@@ -2,6 +2,7 @@ package com.otus.bookstore.repository;
 
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.repository.impl.AuthorRepositoryJpa;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @DataJpaTest
 @Import({AuthorRepositoryJpa.class})
@@ -95,8 +97,7 @@ class AuthorRepositoryTest {
 
     @Test
     void shouldNotFindAuthorById() {
-        Optional<Author> foundAuthor = authorRepository.findById(-1);
-        assertThat(foundAuthor).isEmpty();
+        assertThrows(EntityNotFoundException.class, () -> authorRepository.findById(-1));
     }
 
     @Test
@@ -118,7 +119,6 @@ class AuthorRepositoryTest {
         authorRepository.deleteById(author.getId());
 
         // Assert
-        Optional<Author> deletedAuthor = authorRepository.findById(author.getId());
-        assertThat(deletedAuthor).isEmpty();
+        assertThrows(EntityNotFoundException.class, () -> authorRepository.findById(author.getId()));
     }
 }

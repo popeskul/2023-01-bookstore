@@ -1,6 +1,6 @@
 package com.otus.bookstore.repository;
 
-import com.otus.bookstore.exception.CommentErrorSavedException;
+import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
@@ -60,10 +60,10 @@ public class CommentRepositoryJpaTest {
 
         try {
             commentRepository.save(newComment);
-        } catch (CommentErrorSavedException e) {
+        } catch (EntitySaveException e) {
             assertThatThrownBy(() -> commentRepository.save(newComment))
-                    .isInstanceOf(CommentErrorSavedException.class)
-                    .hasMessageContaining(CommentErrorSavedException.ERROR_SAVED);
+                    .isInstanceOf(EntitySaveException.class)
+                    .hasMessageContaining(String.format(CommentRepositoryJpa.ERROR_WHILE_SAVING_COMMENT, newComment));
         }
 
         Comment actual = entityManager.find(Comment.class, newComment.getId());
@@ -77,17 +77,17 @@ public class CommentRepositoryJpaTest {
 
     @Test
     public void shouldThrowCommentErrorSavedExceptionWhenSaveComment() {
-        doThrow(new CommentErrorSavedException(CommentErrorSavedException.ERROR_SAVED))
+        doThrow(new EntitySaveException(String.format(CommentRepositoryJpa.ERROR_WHILE_SAVING_COMMENT, comment)))
                 .when(commentRepositoryMock).save(comment);
 
         assertThatThrownBy(() -> commentRepositoryMock.save(comment))
-                .isInstanceOf(CommentErrorSavedException.class)
-                .hasMessageContaining(CommentErrorSavedException.ERROR_SAVED);
+                .isInstanceOf(EntitySaveException.class)
+                .hasMessageContaining(String.format(CommentRepositoryJpa.ERROR_WHILE_SAVING_COMMENT, comment));
     }
 
     @Test
     public void shouldThrowCommentErrorSavedExceptionOnRuntimeException() {
-        doThrow(new CommentErrorSavedException())
+        doThrow(new EntitySaveException(String.format(CommentRepositoryJpa.ERROR_WHILE_SAVING_COMMENT, comment)))
                 .when(commentRepositoryMock).save(comment);
 
         assertThatThrownBy(() -> commentRepositoryMock.save(comment))
@@ -95,7 +95,7 @@ public class CommentRepositoryJpaTest {
     }
 
     @Test
-    public void shouldFindById() throws CommentErrorSavedException {
+    public void shouldFindById() {
         Comment savedComment = commentRepository.save(comment);
 
         Optional<Comment> actual = commentRepository.findById(savedComment.getId());

@@ -1,6 +1,5 @@
 package com.otus.bookstore.repository;
 
-import com.otus.bookstore.exception.CommentErrorSavedException;
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
@@ -139,7 +138,7 @@ class BookRepositoryJpaTest {
     }
 
     @Test
-    void shouldFindAllBooks() throws CommentErrorSavedException {
+    void shouldFindAllBooks() {
         Comment comment = Comment.builder()
                 .text("Comment1")
                 .author(initialAuthor)
@@ -172,23 +171,5 @@ class BookRepositoryJpaTest {
         Optional<Book> actual = bookRepository.findById(initialBook.getId());
 
         assertThat(actual).isNotPresent();
-    }
-
-    @Test
-    void shouldDeleteAll() {
-        entityManager.getEntityManager().createNativeQuery("DELETE FROM book_comment").executeUpdate();
-        entityManager.getEntityManager().createNativeQuery("DELETE FROM comment").executeUpdate();
-
-        List<Book> before = bookRepository.findAll();
-
-        assertThat(before).isNotEmpty();
-
-        bookRepository.deleteAll();
-
-        List<Book> after = bookRepository.findAll();
-
-        assertThat(after).isEmpty();
-
-        assertThat(after.size()).isEqualTo(0);
     }
 }

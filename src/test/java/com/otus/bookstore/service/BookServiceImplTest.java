@@ -1,13 +1,13 @@
 package com.otus.bookstore.service;
 
-import com.otus.bookstore.exception.AuthorNotFoundException;
-import com.otus.bookstore.exception.BookBadRequestException;
-import com.otus.bookstore.exception.BookErrorSavedException;
-import com.otus.bookstore.exception.GenreNotFoundException;
+import com.otus.bookstore.exception.EntitySaveException;
+import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
+import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.service.impl.AuthorServiceImpl;
 import com.otus.bookstore.service.impl.BookServiceImpl;
 import com.otus.bookstore.service.impl.GenreServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +15,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
+import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,30 +68,36 @@ public class BookServiceImplTest {
 
     @Test
     void shouldNotCreateBookWithBadRequest() {
-        int genreId = genreService.getAll().get(0).getId();
+        Genre genre = genreService.getAll().get(0);
 
-        assertThat(genreId).isPositive();
+        assertThat(genre).isNotNull();
+        assertThat(genre.getId()).isPositive();
 
-        int authorId = authorService.getAll().get(0).getId();
+        Author author = authorService.getAll().get(0);
 
-        assertThat(authorId).isPositive();
+        assertThat(author).isNotNull();
+        assertThat(author.getId()).isPositive();
+
+        Book badBook = Book.builder().genre(genre).author(author).build();
 
         // bad request
-        assertThatThrownBy(() -> bookService.create(null, null, null, genreId, authorId))
-                .isInstanceOf(BookErrorSavedException.class)
-                .hasMessageContaining(BookErrorSavedException.ERROR_CREATE_BOOK);
+        assertThatThrownBy(() -> bookService.create(badBook.getTitle(), badBook.getDescription(),
+                badBook.getPrice(), badBook.getGenre().getId(), badBook.getAuthor().getId()))
+                .isInstanceOf(EntitySaveException.class)
+                .hasMessageContaining(new EntitySaveException(badBook).getMessage());
     }
 
     @Test
     void shouldNotCreateBookWithBadAuthorId() {
-        int genreId = genreService.getAll().get(0).getId();
+        int genreId = 1;
+        int badAuthorId = 0;
 
         assertThat(genreId).isPositive();
 
         // bad author id
-        assertThatThrownBy(() -> bookService.create(title, description, price, 0, genreId))
-                .isInstanceOf(AuthorNotFoundException.class)
-                .hasMessageContaining(AuthorNotFoundException.ERROR_AUTHOR_NOT_FOUND);
+        assertThatThrownBy(() -> bookService.create(title, description, price, badAuthorId, genreId))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining(String.format(AuthorServiceImpl.ERROR_AUTHOR_NOT_FOUND, badAuthorId));
     }
 
     @Test
@@ -101,8 +108,8 @@ public class BookServiceImplTest {
 
         // bad genre id
         assertThatThrownBy(() -> bookService.create(title, description, price, authorId, 0))
-                .isInstanceOf(GenreNotFoundException.class)
-                .hasMessageContaining(GenreNotFoundException.ERROR_GENRE_NOT_FOUND);
+                .isInstanceOf(InvalidParameterException.class)
+                .hasMessageContaining(GenreServiceImpl.ERROR_ILLEGAL_ARGUMENT);
     }
 
     @Test
@@ -188,8 +195,8 @@ public class BookServiceImplTest {
 
         // Can't update book with id = 0
         assertThatThrownBy(() -> bookService.update(0, title2, description2, price, authorId, genreId))
-                .isInstanceOf(BookBadRequestException.class)
-                .hasMessageContaining(BookBadRequestException.ERROR_BAD_REQUEST);
+                .isInstanceOf(InvalidParameterException.class)
+                .hasMessageContaining(BookServiceImpl.ERROR_ID_MUST_BE_GREATER_THAN_ZERO);
     }
 
     @Test

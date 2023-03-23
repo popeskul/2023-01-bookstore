@@ -13,6 +13,4 @@ public interface BookRepository {
     Optional<Book> save(Book book);
 
     void deleteById(long id);
-
-    void deleteAll();
 }

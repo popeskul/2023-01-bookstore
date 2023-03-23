@@ -1,19 +1,27 @@
 package com.otus.bookstore.service;
 
-import com.otus.bookstore.exception.AuthorBadRequestException;
+import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Author;
+import com.otus.bookstore.repository.AuthorRepository;
 import com.otus.bookstore.service.impl.AuthorServiceImpl;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @Import({AuthorServiceImpl.class})
@@ -23,18 +31,31 @@ class AuthorServiceImplTest {
     private static final String email = "email1@mail.com";
     private static final String email2 = "email2@mail.com";
 
-    Author unsavedAuthor = Author.builder()
+    Author unsavedValidAuthor = Author.builder()
             .name(name)
             .email(email)
             .build();
 
+    Author existedAuthor;
+    List<Author> existedAuthors;
+
     @Autowired
     private AuthorService authorService;
 
+    @Mock
+    private AuthorRepository authorRepository;
+
+    @BeforeEach
+    void setUp() {
+        existedAuthor = authorService.getById(1).orElseThrow();
+        existedAuthors = authorService.getAll();
+    }
+
     @Test
     void shouldCreateAuthor() {
-        // Arrange
-        Author author = unsavedAuthor.toBuilder().build();
+        Author author = unsavedValidAuthor.toBuilder().build();
+
+        when(authorRepository.save(author)).thenReturn(Optional.of(author));
 
         // Act
         Optional<Integer> id = authorService.create(author);
@@ -55,37 +76,31 @@ class AuthorServiceImplTest {
         Author author = Author.builder().build();
 
         assertThatThrownBy(() -> authorService.create(author))
-                .isInstanceOf(AuthorBadRequestException.class)
-                .hasMessage(AuthorBadRequestException.ERROR_BAD_REQUEST);
+                .isInstanceOf(EntitySaveException.class)
+                .hasMessage(new EntitySaveException(author).getMessage());
     }
 
     @Test
     void shouldGetAuthorById() {
-        // create author
-        Optional<Integer> id = authorService.create(unsavedAuthor);
-
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
-
         // Act
-        Optional<Author> actual = authorService.getById(id.get());
+        Optional<Author> actual = authorService.getById(1);
 
         // Assert
         assertThat(actual).isPresent();
-        assertThat(actual.get().getName()).isEqualTo(name);
-        assertThat(actual.get().getEmail()).isEqualTo(email);
+        assertThat(actual.get().getName()).isEqualTo(existedAuthor.getName());
+        assertThat(actual.get().getEmail()).isEqualTo(existedAuthor.getEmail());
     }
 
     @Test
     void shouldGetAllAuthors() {
         // Arrange
-        Author author1 = unsavedAuthor.toBuilder().build();
+        Author author1 = unsavedValidAuthor.toBuilder().build();
         Optional<Integer> id1 = authorService.create(author1);
 
         assertThat(id1).isPresent();
         assertThat(id1.get()).isPositive();
 
-        Author author2 = unsavedAuthor.toBuilder().build();
+        Author author2 = unsavedValidAuthor.toBuilder().build();
         Optional<Integer> id2 = authorService.create(author2);
 
         assertThat(id2).isPresent();
@@ -102,7 +117,7 @@ class AuthorServiceImplTest {
 
     @Test
     void shouldUpdateAuthor() {
-        Author newAuthor = unsavedAuthor.toBuilder().build();
+        Author newAuthor = unsavedValidAuthor.toBuilder().build();
         Optional<Integer> id = authorService.create(newAuthor);
 
         assertThat(id).isPresent();
@@ -126,33 +141,20 @@ class AuthorServiceImplTest {
 
     @Test
     void shouldNotUpdateAuthorWithInvalidData() {
-        Author newAuthor = unsavedAuthor.toBuilder().build();
-        Optional<Integer> id = authorService.create(newAuthor);
-
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
-
-        Optional<Author> createdAuthor = authorService.getById(id.get());
-
-        assertThat(createdAuthor).isPresent();
-
         // Arrange
-        Author dirtyAuthor = createdAuthor.get().toBuilder()
-                .id(0)
-                .name(null)
-                .email(null)
-                .build();
+        Author earlyCreatedAuthor = existedAuthor.toBuilder().build();
+        Author wrongAuthorForUpdate = earlyCreatedAuthor.toBuilder().name(null).email(null).build();
 
         // Act
-        assertThatThrownBy(() -> authorService.update(dirtyAuthor))
-                .isInstanceOf(AuthorBadRequestException.class)
-                .hasMessage(AuthorBadRequestException.ERROR_BAD_REQUEST);
+        assertThatThrownBy(() -> authorService.update(wrongAuthorForUpdate))
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
+    @Transactional
     void shouldDeleteAuthorById() {
         // create author
-        Author newAuthor = unsavedAuthor.toBuilder().build();
+        Author newAuthor = unsavedValidAuthor.toBuilder().build();
 
         Optional<Integer> id = authorService.create(newAuthor);
 
@@ -167,8 +169,6 @@ class AuthorServiceImplTest {
         authorService.deleteById(createAuthor.get().getId());
 
         // Assert
-        Optional<Author> actual = authorService.getById(createAuthor.get().getId());
-
-        assertThat(actual).isNotPresent();
+        assertThrows(EntityNotFoundException.class, () -> authorService.getById(createAuthor.get().getId()));
     }
 }

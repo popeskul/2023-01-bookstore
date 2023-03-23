@@ -1,18 +1,20 @@
 package com.otus.bookstore.service.impl;
 
-import com.otus.bookstore.exception.BookCommentErrorSavedException;
-import com.otus.bookstore.exception.BookCommentNotFoundException;
 import com.otus.bookstore.model.BookComment;
 import com.otus.bookstore.model.BookCommentId;
 import com.otus.bookstore.repository.BookCommentRepository;
 import com.otus.bookstore.service.BookCommentService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class BookCommentServiceImpl implements BookCommentService {
+    public static final String BOOK_COMMENT_WITH_ID_NOT_FOUND = "BookComment with id %s not found";
+
     private final BookCommentRepository bookCommentRepository;
 
     public BookCommentServiceImpl(BookCommentRepository bookCommentRepository) {
@@ -20,40 +22,33 @@ public class BookCommentServiceImpl implements BookCommentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookComment> getAll() {
         return bookCommentRepository.findAll();
     }
 
     @Override
-    public BookComment save(BookComment bookComment) throws BookCommentErrorSavedException {
+    @Transactional
+    public BookComment save(BookComment bookComment) {
         try {
             return bookCommentRepository.save(bookComment);
         } catch (Exception e) {
-            throw new BookCommentErrorSavedException();
+            throw new EntityNotFoundException(String.format(BOOK_COMMENT_WITH_ID_NOT_FOUND, bookComment));
         }
     }
 
     @Override
-    public Optional<BookComment> getById(BookCommentId id) throws BookCommentNotFoundException {
-        try {
-            Optional<BookComment> bookCommentOptional = bookCommentRepository.findById(id);
-
-            if (bookCommentOptional.isEmpty()) {
-                throw new BookCommentNotFoundException(id.getBookId(), id.getCommentId());
-            }
-
-            return bookCommentOptional;
-        } catch (RuntimeException e) {
-            throw new BookCommentNotFoundException(id.getBookId(), id.getCommentId());
-        }
+    @Transactional(readOnly = true)
+    public Optional<BookComment> getById(BookCommentId id) {
+        return bookCommentRepository.findById(id);
     }
 
     @Override
-    public void deleteById(BookCommentId id) throws BookCommentNotFoundException {
-        try {
-            bookCommentRepository.deleteByBookCommentId(id);
-        } catch (RuntimeException e) {
-            throw new BookCommentNotFoundException(id.getBookId(), id.getCommentId());
+    @Transactional
+    public void deleteById(BookCommentId id) {
+        boolean result = bookCommentRepository.deleteById(id);
+        if (!result) {
+            throw new EntityNotFoundException(String.format(BOOK_COMMENT_WITH_ID_NOT_FOUND, id));
         }
     }
 }
