@@ -25,7 +25,7 @@ public final class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private final long id;
+    private final Long id;
 
     @Column(name = "title", nullable = false)
     private final String title;
@@ -54,7 +54,7 @@ public final class Book {
     private List<Comment> comments = new ArrayList<>();
 
     public Book() {
-        this.id = 0;
+        this.id = 0L;
         this.title = "";
         this.description = "";
         this.price = BigDecimal.ZERO;
