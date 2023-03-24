@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AuthorRepository {
-    Optional<Author> findById(int id);
+    Optional<Author> findById(long id);
 
     List<Author> findAll();
 
     Optional<Author> save(Author author);
 
-    Optional<Author> deleteById(int id);
+    Optional<Author> deleteById(long id);
 }

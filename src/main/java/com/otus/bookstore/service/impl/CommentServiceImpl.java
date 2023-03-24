@@ -1,10 +1,7 @@
 package com.otus.bookstore.service.impl;
 
 import com.otus.bookstore.exception.EntitySaveException;
-import com.otus.bookstore.model.BookComment;
-import com.otus.bookstore.model.BookCommentId;
 import com.otus.bookstore.model.Comment;
-import com.otus.bookstore.repository.BookCommentRepository;
 import com.otus.bookstore.repository.CommentRepository;
 import com.otus.bookstore.service.CommentService;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,13 +18,11 @@ public class CommentServiceImpl implements CommentService {
     public static final String ERROR_NOT_FOUND_AUTHOR = "Comment with id %s not found";
 
     private final CommentRepository commentRepository;
-    private final BookCommentRepository bookCommentRepository;
 
 
     @Autowired
-    public CommentServiceImpl(CommentRepository commentRepository, BookCommentRepository bookCommentRepository) {
+    public CommentServiceImpl(CommentRepository commentRepository) {
         this.commentRepository = commentRepository;
-        this.bookCommentRepository = bookCommentRepository;
     }
 
     @Override
@@ -35,18 +30,7 @@ public class CommentServiceImpl implements CommentService {
     public Comment save(Comment comment) {
         try {
             comment = commentRepository.save(comment);
-
-            BookCommentId bookCommentId = BookCommentId.builder()
-                    .bookId(comment.getBook().getId())
-                    .commentId(comment.getId())
-                    .build();
-            BookComment bookComment = BookComment.builder()
-                    .id(bookCommentId)
-                    .book(comment.getBook())
-                    .comment(comment)
-                    .build();
-
-            bookCommentRepository.save(bookComment);
+            
             return comment;
         } catch (RuntimeException e) {
             throw new EntitySaveException(e.getMessage(), e);
@@ -89,10 +73,5 @@ public class CommentServiceImpl implements CommentService {
         }
 
         commentRepository.deleteById(id);
-
-        bookCommentRepository.deleteById(BookCommentId.builder()
-                .bookId(findComment.get().getBook().getId())
-                .commentId(findComment.get().getId())
-                .build());
     }
 }

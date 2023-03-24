@@ -52,6 +52,7 @@ class BookRepositoryJpaTest {
     @Test
     void shouldSaveBook() {
         Book book = Book.builder()
+                .id(0L)
                 .title(title)
                 .description(description)
                 .price(price)
@@ -163,7 +164,6 @@ class BookRepositoryJpaTest {
 
     @Test
     void shouldDeleteById() {
-        entityManager.getEntityManager().createNativeQuery("DELETE FROM book_comment").executeUpdate();
         entityManager.getEntityManager().createNativeQuery("DELETE FROM comment").executeUpdate();
 
         bookRepository.deleteById(initialBook.getId());

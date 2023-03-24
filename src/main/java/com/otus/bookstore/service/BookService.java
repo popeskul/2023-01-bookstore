@@ -11,9 +11,9 @@ public interface BookService {
 
     Optional<Book> getById(long id);
 
-    Optional<Long> create(String title, String description, BigDecimal price, int authorId, int genreId);
+    Optional<Long> create(String title, String description, BigDecimal price, long authorId, long genreId);
 
-    void update(long id, String title, String description, BigDecimal price, int authorId, int genreId);
+    void update(long id, String title, String description, BigDecimal price, long authorId, long genreId);
 
     void deleteById(long id);
 }

@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @DataJpaTest
 @Import({AuthorRepositoryJpa.class})
 class AuthorRepositoryTest {
+    private static final long ID = 1L;
     private static final String name = "Some Doe";
     private static final String name2 = "Some Doe2";
     private static final String email = "some@mail.com";
@@ -29,12 +30,15 @@ class AuthorRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
+    private final Author validAuthorWithId = Author.builder()
+            .id(ID)
+            .name(name)
+            .email(email)
+            .build();
+
     @Test
     void shouldSaveAuthor() {
-        Author author = Author.builder()
-                .name(name)
-                .email(email)
-                .build();
+        Author author = validAuthorWithId.toBuilder().build();
 
         authorRepository.save(author);
 
@@ -48,10 +52,7 @@ class AuthorRepositoryTest {
 
     @Test
     void shouldUpdateAuthor() {
-        Author author = Author.builder()
-                .name(name)
-                .email(email)
-                .build();
+        Author author = validAuthorWithId.toBuilder().build();
 
         authorRepository.save(author);
 
@@ -82,10 +83,7 @@ class AuthorRepositoryTest {
 
     @Test
     public void shouldFindById() {
-        Author author = Author.builder()
-                .name(name)
-                .email(email)
-                .build();
+        Author author = validAuthorWithId.toBuilder().id(0L).build();
         authorRepository.save(author);
 
         entityManager.clear();
@@ -103,7 +101,6 @@ class AuthorRepositoryTest {
     @Test
     void shouldDeleteAuthorById() {
         // delete book first to avoid constraint violation
-        entityManager.getEntityManager().createNativeQuery("DELETE FROM book_comment").executeUpdate();
         entityManager.getEntityManager().createNativeQuery("DELETE FROM comment").executeUpdate();
         entityManager.getEntityManager().createNativeQuery("DELETE FROM book").executeUpdate();
 

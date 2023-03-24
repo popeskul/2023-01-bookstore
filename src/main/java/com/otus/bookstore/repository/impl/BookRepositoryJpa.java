@@ -26,6 +26,10 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public Optional<Book> findById(long id) {
         try {
+            if (id <= 0) {
+                throw new InvalidParameterException(String.format(ERROR_SAVE_BOOK, id));
+            }
+
             EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
 
             TypedQuery<Book> query = entityManager.createQuery("SELECT b FROM Book b WHERE b.id = :id", Book.class);
@@ -64,7 +68,7 @@ public class BookRepositoryJpa implements BookRepository {
                 return Optional.of(entityManager.merge(book));
             }
         } catch (Exception e) {
-            throw new EntitySaveException(book);
+            throw new EntitySaveException(book, e);
         }
     }
 

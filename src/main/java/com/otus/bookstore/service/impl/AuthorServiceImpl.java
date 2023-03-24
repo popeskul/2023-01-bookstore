@@ -23,7 +23,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional
-    public Optional<Integer> create(Author author) {
+    public Optional<Long> create(Author author) {
         try {
             Optional<Author> savedAuthor = authorRepository.save(author);
             if (savedAuthor.isPresent()) {
@@ -38,7 +38,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Author> getById(int id) {
+    public Optional<Author> getById(long id) {
         try {
             return authorRepository.findById(id);
         } catch (RuntimeException e) {
@@ -65,7 +65,7 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional
-    public void deleteById(int id) {
+    public void deleteById(long id) {
         authorRepository.deleteById(id);
     }
 }

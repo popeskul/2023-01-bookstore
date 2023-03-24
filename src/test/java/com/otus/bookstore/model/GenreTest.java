@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @DataJpaTest
 class GenreTest {
-    private final int id = 1;
-    private final int id2 = 2;
+    private final long id = 1;
+    private final long id2 = 2;
     private final String title = "Fiction";
 
     @Autowired

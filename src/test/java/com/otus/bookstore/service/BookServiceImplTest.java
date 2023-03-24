@@ -42,11 +42,11 @@ public class BookServiceImplTest {
 
     @Test
     void shouldCreateBook() {
-        int genreId = genreService.getAll().get(0).getId();
+        long genreId = genreService.getAll().get(0).getId();
 
         assertThat(genreId).isPositive();
 
-        int authorId = authorService.getAll().get(0).getId();
+        long authorId = authorService.getAll().get(0).getId();
 
         assertThat(authorId).isPositive();
 
@@ -78,7 +78,7 @@ public class BookServiceImplTest {
         assertThat(author).isNotNull();
         assertThat(author.getId()).isPositive();
 
-        Book badBook = Book.builder().genre(genre).author(author).build();
+        Book badBook = Book.builder().id(0L).genre(genre).author(author).build();
 
         // bad request
         assertThatThrownBy(() -> bookService.create(badBook.getTitle(), badBook.getDescription(),
@@ -102,7 +102,7 @@ public class BookServiceImplTest {
 
     @Test
     void shouldNotCreateBookWithBadGenreId() {
-        int authorId = authorService.getAll().get(0).getId();
+        long authorId = authorService.getAll().get(0).getId();
 
         assertThat(authorId).isPositive();
 
@@ -114,11 +114,11 @@ public class BookServiceImplTest {
 
     @Test
     void shouldGetById() {
-        int genreId = genreService.getAll().get(0).getId();
+        long genreId = genreService.getAll().get(0).getId();
 
         assertThat(genreId).isPositive();
 
-        int authorId = authorService.getAll().get(0).getId();
+        long authorId = authorService.getAll().get(0).getId();
 
         assertThat(authorId).isPositive();
 
@@ -147,11 +147,11 @@ public class BookServiceImplTest {
 
     @Test
     void shouldUpdate() {
-        int genreId = genreService.getAll().get(0).getId();
+        long genreId = genreService.getAll().get(0).getId();
 
         assertThat(genreId).isPositive();
 
-        int authorId = authorService.getAll().get(0).getId();
+        long authorId = authorService.getAll().get(0).getId();
 
         assertThat(authorId).isPositive();
 
@@ -185,11 +185,11 @@ public class BookServiceImplTest {
 
     @Test
     void shouldNotUpdateWithBadBookId() {
-        int genreId = genreService.getAll().get(0).getId();
+        long genreId = genreService.getAll().get(0).getId();
 
         assertThat(genreId).isPositive();
 
-        int authorId = authorService.getAll().get(0).getId();
+        long authorId = authorService.getAll().get(0).getId();
 
         assertThat(authorId).isPositive();
 
@@ -201,11 +201,11 @@ public class BookServiceImplTest {
 
     @Test
     void shouldNotUpdateWithBadName() {
-        int genreId = genreService.getAll().get(0).getId();
+        long genreId = genreService.getAll().get(0).getId();
 
         assertThat(genreId).isPositive();
 
-        int authorId = authorService.getAll().get(0).getId();
+        long authorId = authorService.getAll().get(0).getId();
 
         assertThat(authorId).isPositive();
 
@@ -231,11 +231,11 @@ public class BookServiceImplTest {
 
     @Test
     void shouldDeleteById() {
-        int genreId = genreService.getAll().get(0).getId();
+        long genreId = genreService.getAll().get(0).getId();
 
         assertThat(genreId).isPositive();
 
-        int authorId = authorService.getAll().get(0).getId();
+        long authorId = authorService.getAll().get(0).getId();
 
         assertThat(authorId).isPositive();
 

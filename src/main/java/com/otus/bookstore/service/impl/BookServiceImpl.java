@@ -48,7 +48,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public Optional<Long> create(String title, String description, BigDecimal price, int authorId, int genreId) {
+    public Optional<Long> create(String title, String description, BigDecimal price, long authorId, long genreId) {
         Author author = authorService.getById(authorId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format(AuthorServiceImpl.ERROR_AUTHOR_NOT_FOUND, authorId)));
 
@@ -56,6 +56,7 @@ public class BookServiceImpl implements BookService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format(ERROR_GENRE_NOT_FOUND, genreId)));
 
         Book book = Book.builder()
+                .id(0L)
                 .title(title)
                 .description(description)
                 .price(price)
@@ -71,7 +72,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     @Transactional
-    public void update(long id, String title, String description, BigDecimal price, int authorId, int genreId) {
+    public void update(long id, String title, String description, BigDecimal price, long authorId, long genreId) {
         if (id <= 0) {
             throw new InvalidParameterException(ERROR_ID_MUST_BE_GREATER_THAN_ZERO);
         }

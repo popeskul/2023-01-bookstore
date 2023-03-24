@@ -21,11 +21,13 @@ public class GenreServiceImplTest {
     @Autowired
     private GenreService genreService;
 
+    private Genre unsavedValidGenre = Genre.builder().id(0L).name(name).build();
+
     @Test
     void shouldCreateGenre() {
-        Genre genre = Genre.builder().name(name).build();
+        Genre genre = unsavedValidGenre.toBuilder().build();
 
-        Optional<Integer> id = genreService.create(genre);
+        Optional<Long> id = genreService.create(genre);
 
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
@@ -37,8 +39,8 @@ public class GenreServiceImplTest {
 
     @Test
     void shouldUpdateGenre() {
-        Genre genre = Genre.builder().name(name).build();
-        Optional<Integer> id = genreService.create(genre);
+        Genre genre = unsavedValidGenre.toBuilder().id(1L).build();
+        Optional<Long> id = genreService.create(genre);
 
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
@@ -60,8 +62,8 @@ public class GenreServiceImplTest {
 
     @Test
     void shouldDeleteById() {
-        Genre genre = Genre.builder().name(name).build();
-        Optional<Integer> id = genreService.create(genre);
+        Genre genre = unsavedValidGenre.toBuilder().build();
+        Optional<Long> id = genreService.create(genre);
 
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
@@ -75,8 +77,8 @@ public class GenreServiceImplTest {
 
     @Test
     void shouldGetById() {
-        Genre genre = Genre.builder().name(name).build();
-        Optional<Integer> id = genreService.create(genre);
+        Genre genre = unsavedValidGenre.toBuilder().build();
+        Optional<Long> id = genreService.create(genre);
 
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
@@ -89,14 +91,14 @@ public class GenreServiceImplTest {
 
     @Test
     void shouldGetAll() {
-        Genre genre = Genre.builder().name(name).build();
-        Optional<Integer> id = genreService.create(genre);
+        Genre genre = unsavedValidGenre.toBuilder().build();
+        Optional<Long> id = genreService.create(genre);
 
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
 
-        Genre genre2 = Genre.builder().name(name2).build();
-        Optional<Integer> id2 = genreService.create(genre2);
+        Genre genre2 = unsavedValidGenre.toBuilder().name(name2).build();
+        Optional<Long> id2 = genreService.create(genre2);
 
         assertThat(id2).isPresent();
         assertThat(id2.get()).isPositive();

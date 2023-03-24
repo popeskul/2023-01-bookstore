@@ -24,9 +24,14 @@ public class GenreRepositoryTest {
     @Autowired
     private TestEntityManager entityManager;
 
+    private final Genre validGenreWithId = Genre.builder()
+            .id(1L)
+            .name(name)
+            .build();
+
     @Test
     public void shouldSaveGenre() {
-        Genre genre = Genre.builder().name(name).build();
+        Genre genre = validGenreWithId.toBuilder().build();
 
         genreRepository.save(genre);
 
@@ -39,7 +44,7 @@ public class GenreRepositoryTest {
 
     @Test
     public void shouldUpdateGenre() {
-        Genre genre = Genre.builder().name(name).build();
+        Genre genre = validGenreWithId.toBuilder().build();
 
         genreRepository.save(genre);
 
@@ -67,7 +72,7 @@ public class GenreRepositoryTest {
 
     @Test
     public void shouldFindById() {
-        Genre genre = Genre.builder().name(name).build();
+        Genre genre = Genre.builder().name(name).id(0L).build();
 
         genreRepository.save(genre);
 
@@ -87,7 +92,7 @@ public class GenreRepositoryTest {
 
     @Test
     public void shouldDeleteGenreById() {
-        Genre genre = Genre.builder().name(name).build();
+        Genre genre = validGenreWithId.toBuilder().build();
 
         genreRepository.save(genre);
 

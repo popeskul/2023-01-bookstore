@@ -22,7 +22,7 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     @Transactional
-    public Optional<Integer> create(Genre genre) {
+    public Optional<Long> create(Genre genre) {
         genreRepository.save(genre);
         return Optional.of(genre.getId());
     }
@@ -35,13 +35,13 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     @Transactional
-    public void deleteById(int id) {
+    public void deleteById(long id) {
         genreRepository.deleteById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Genre> getById(int id) {
+    public Optional<Genre> getById(long id) {
         if (id == 0) {
             throw new InvalidParameterException(ERROR_ILLEGAL_ARGUMENT);
         }

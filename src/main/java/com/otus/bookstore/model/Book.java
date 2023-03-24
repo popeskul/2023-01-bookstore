@@ -17,8 +17,7 @@ import java.util.Objects;
 @Getter
 @NamedEntityGraph(name = "book-entity-graph", attributeNodes = {
         @NamedAttributeNode("author"),
-        @NamedAttributeNode("genre"),
-        @NamedAttributeNode("comments")
+        @NamedAttributeNode("genre")
 })
 public final class Book {
 
@@ -36,13 +35,13 @@ public final class Book {
     @Column(name = "price", nullable = false)
     private final BigDecimal price;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "author_id", nullable = false)
     @Fetch(FetchMode.JOIN)
     @ToString.Exclude
     private final Author author;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "genre_id", nullable = false)
     @Fetch(FetchMode.JOIN)
     @ToString.Exclude

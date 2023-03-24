@@ -26,7 +26,7 @@ public class GenreRepositoryJpa implements GenreRepository {
     }
 
     @Override
-    public Optional<Genre> findById(int id) {
+    public Optional<Genre> findById(long id) {
         try {
             if (id == 0) {
                 throw new InvalidParameterException(String.format(ERROR_GENRE_NOT_FOUND, id));
@@ -70,7 +70,7 @@ public class GenreRepositoryJpa implements GenreRepository {
     }
 
     @Override
-    public void deleteById(int id) {
+    public void deleteById(long id) {
         try {
             Genre genre = entityManager.find(Genre.class, id);
             if (genre != null) {

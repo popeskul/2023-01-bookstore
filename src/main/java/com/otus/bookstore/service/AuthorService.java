@@ -6,13 +6,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface AuthorService {
-    Optional<Integer> create(Author author);
+    Optional<Long> create(Author author);
 
-    Optional<Author> getById(int id);
+    Optional<Author> getById(long id);
 
     List<Author> getAll();
 
     void update(Author author);
 
-    void deleteById(int id);
+    void deleteById(long id);
 }

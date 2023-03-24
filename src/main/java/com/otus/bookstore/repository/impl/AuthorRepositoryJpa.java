@@ -26,7 +26,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     }
 
     @Override
-    public Optional<Author> findById(int id) {
+    public Optional<Author> findById(long id) {
         if (id == 0) {
             throw new InvalidParameterException(String.format(ERROR_BAD_REQUEST_ID, id));
         }
@@ -68,7 +68,7 @@ public class AuthorRepositoryJpa implements AuthorRepository {
     }
 
     @Override
-    public Optional<Author> deleteById(int id) {
+    public Optional<Author> deleteById(long id) {
         try {
             if (id == 0) {
                 throw new InvalidParameterException(String.format(ERROR_BAD_REQUEST_ID, id));

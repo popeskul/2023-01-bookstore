@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GenreRepository {
-    Optional<Genre> findById(int id);
+    Optional<Genre> findById(long id);
 
     List<Genre> findAll();
 
     Optional<Genre> save(Genre author);
 
-    void deleteById(int id);
+    void deleteById(long id);
 }

@@ -32,6 +32,7 @@ class AuthorServiceImplTest {
     private static final String email2 = "email2@mail.com";
 
     Author unsavedValidAuthor = Author.builder()
+            .id(0L)
             .name(name)
             .email(email)
             .build();
@@ -58,7 +59,7 @@ class AuthorServiceImplTest {
         when(authorRepository.save(author)).thenReturn(Optional.of(author));
 
         // Act
-        Optional<Integer> id = authorService.create(author);
+        Optional<Long> id = authorService.create(author);
 
         // Assert
         assertThat(id).isPresent();
@@ -95,13 +96,13 @@ class AuthorServiceImplTest {
     void shouldGetAllAuthors() {
         // Arrange
         Author author1 = unsavedValidAuthor.toBuilder().build();
-        Optional<Integer> id1 = authorService.create(author1);
+        Optional<Long> id1 = authorService.create(author1);
 
         assertThat(id1).isPresent();
         assertThat(id1.get()).isPositive();
 
         Author author2 = unsavedValidAuthor.toBuilder().build();
-        Optional<Integer> id2 = authorService.create(author2);
+        Optional<Long> id2 = authorService.create(author2);
 
         assertThat(id2).isPresent();
         assertThat(id2.get()).isPositive();
@@ -118,7 +119,7 @@ class AuthorServiceImplTest {
     @Test
     void shouldUpdateAuthor() {
         Author newAuthor = unsavedValidAuthor.toBuilder().build();
-        Optional<Integer> id = authorService.create(newAuthor);
+        Optional<Long> id = authorService.create(newAuthor);
 
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
@@ -156,7 +157,7 @@ class AuthorServiceImplTest {
         // create author
         Author newAuthor = unsavedValidAuthor.toBuilder().build();
 
-        Optional<Integer> id = authorService.create(newAuthor);
+        Optional<Long> id = authorService.create(newAuthor);
 
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();

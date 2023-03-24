@@ -24,7 +24,6 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
-    @ToString.Exclude
     private final Book book;
 
     @ManyToOne(fetch = FetchType.LAZY)

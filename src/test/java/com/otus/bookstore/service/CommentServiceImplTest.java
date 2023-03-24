@@ -2,7 +2,6 @@ package com.otus.bookstore.service;
 
 import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.*;
-import com.otus.bookstore.repository.BookCommentRepository;
 import com.otus.bookstore.repository.CommentRepository;
 import com.otus.bookstore.repository.impl.CommentRepositoryJpa;
 import com.otus.bookstore.service.impl.CommentServiceImpl;
@@ -32,16 +31,12 @@ public class CommentServiceImplTest {
     private Author author;
     private Book book;
     private Comment comment;
-    private BookComment bookComment;
 
     @MockBean
     private CommentRepository commentRepository;
 
     @Autowired
     private CommentService commentService;
-
-    @MockBean
-    private BookCommentRepository bookCommentRepository;
 
     @BeforeEach
     public void setUp() {
@@ -53,18 +48,11 @@ public class CommentServiceImplTest {
         book = Book.builder().title("title1").author(author).build();
 
         comment = Comment.builder().book(book).text("text1").build();
-
-        bookComment = BookComment.builder()
-                .id(BookCommentId.builder().bookId(book.getId()).commentId(comment.getId()).build())
-                .book(book)
-                .comment(comment)
-                .build();
     }
 
     @Test
     void shouldSaveComment() {
         when(commentRepository.save(comment)).thenReturn(comment);
-        when(bookCommentRepository.save(bookComment)).thenReturn(bookComment);
 
         Comment savedComment = commentService.save(comment);
         assertThat(savedComment).isEqualTo(comment);
