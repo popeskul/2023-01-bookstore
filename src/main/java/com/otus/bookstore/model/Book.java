@@ -17,7 +17,12 @@ import java.util.Objects;
 @Getter
 @NamedEntityGraph(name = "book-entity-graph", attributeNodes = {
         @NamedAttributeNode("author"),
-        @NamedAttributeNode("genre")
+        @NamedAttributeNode("genre"),
+        @NamedAttributeNode(value = "comments", subgraph = "comment-subgraph")
+}, subgraphs = {
+        @NamedSubgraph(name = "comment-subgraph", attributeNodes = {
+                @NamedAttributeNode("book")
+        })
 })
 public final class Book {
 
@@ -48,7 +53,6 @@ public final class Book {
     private final Genre genre;
 
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
-    @Fetch(FetchMode.JOIN)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
@@ -59,6 +63,10 @@ public final class Book {
         this.price = BigDecimal.ZERO;
         this.author = null;
         this.genre = null;
+    }
+
+    public List<Comment> getComments() {
+        return List.copyOf(comments);
     }
 
     @Override

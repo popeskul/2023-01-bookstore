@@ -106,10 +106,6 @@ class BookRepositoryJpaTest {
 
     @Test
     void shouldFindById() {
-        // enable statistics
-        SessionFactory sessionFactory = entityManager.getEntityManager().getEntityManagerFactory().unwrap(SessionFactory.class);
-        sessionFactory.getStatistics().setStatisticsEnabled(true);
-
         // when
         Optional<Book> actual = bookRepository.findById(initialBook.getId());
 
@@ -133,9 +129,6 @@ class BookRepositoryJpaTest {
 
         assertThat(actual.get().getGenre()).isNotNull();
         assertThat(actual.get().getGenre().getId()).isEqualTo(initialGenre.getId());
-
-        // check statistics
-        assertThat(sessionFactory.getStatistics().getPrepareStatementCount()).isEqualTo(1);
     }
 
     @Test

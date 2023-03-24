@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.ToString;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -36,14 +34,6 @@ public class Comment {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
-
-    public List<Comment> getComments() {
-        if (book == null || book.getComments() == null) {
-            return Collections.emptyList();
-        }
-
-        return Collections.unmodifiableList(book.getComments());
-    }
 
     public Comment() {
         this.id = 0L;

@@ -10,7 +10,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.security.InvalidParameterException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Repository
@@ -30,14 +32,13 @@ public class BookRepositoryJpa implements BookRepository {
                 throw new InvalidParameterException(String.format(ERROR_SAVE_BOOK, id));
             }
 
-            EntityGraph<?> entityGraph = entityManager.getEntityGraph("book-entity-graph");
+            EntityGraph<?> graph = entityManager.getEntityGraph("book-entity-graph");
 
-            TypedQuery<Book> query = entityManager.createQuery("SELECT b FROM Book b WHERE b.id = :id", Book.class);
-            query.setParameter("id", id);
+            Map<String, Object> properties = new HashMap<>();
 
-            query.setHint("javax.persistence.fetchgraph", entityGraph);
+            properties.put("javax.persistence.fetchgraph", graph);
 
-            return query.getResultList().stream().findFirst();
+            return Optional.ofNullable(entityManager.find(Book.class, id, properties));
         } catch (Exception e) {
             throw new EntitySaveException(String.format(ERROR_SAVE_BOOK, id));
         }
