@@ -142,7 +142,6 @@ class BookRepositoryJpaTest {
     void shouldFindAllBooks() {
         Comment comment = Comment.builder()
                 .text("Comment1")
-                .author(initialAuthor)
                 .book(initialBook)
                 .build();
 

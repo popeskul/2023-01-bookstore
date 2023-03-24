@@ -49,7 +49,6 @@ public class CommentRepositoryJpaTest {
 
         comment = Comment.builder()
                 .book(book)
-                .author(author)
                 .text(commentText)
                 .build();
     }
@@ -72,7 +71,6 @@ public class CommentRepositoryJpaTest {
         assertThat(actual.getText()).isEqualTo(commentText);
         assertThat(actual.getId()).isGreaterThan(0);
         assertThat(actual.getBook()).isEqualTo(newComment.getBook());
-        assertThat(actual.getAuthor()).isEqualTo(newComment.getAuthor());
     }
 
     @Test
@@ -104,7 +102,6 @@ public class CommentRepositoryJpaTest {
         assertThat(actual.get().getText()).isEqualTo(commentText);
         assertThat(actual.get().getId()).isEqualTo(savedComment.getId());
         assertThat(actual.get().getBook()).isEqualTo(comment.getBook());
-        assertThat(actual.get().getAuthor()).isEqualTo(comment.getAuthor());
     }
 
     @Test

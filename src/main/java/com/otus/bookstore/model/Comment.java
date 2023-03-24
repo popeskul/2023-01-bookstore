@@ -1,9 +1,14 @@
 package com.otus.bookstore.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -13,8 +18,7 @@ import java.util.Objects;
 @ToString
 @AllArgsConstructor
 @NamedEntityGraph(name = "comment-entity-graph", attributeNodes = {
-        @NamedAttributeNode("book"),
-        @NamedAttributeNode("author")
+        @NamedAttributeNode("book")
 })
 public class Comment {
     @Id
@@ -24,12 +28,8 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
-    private final Book book;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_id", nullable = false)
     @ToString.Exclude
-    private final Author author;
+    private final Book book;
 
     @Column(name = "text", nullable = false)
     private final String text;
@@ -37,10 +37,17 @@ public class Comment {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    public List<Comment> getComments() {
+        if (book == null || book.getComments() == null) {
+            return Collections.emptyList();
+        }
+
+        return Collections.unmodifiableList(book.getComments());
+    }
+
     public Comment() {
         this.id = 0L;
         this.book = null;
-        this.author = null;
         this.text = "";
     }
 
@@ -54,11 +61,11 @@ public class Comment {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Comment comment = (Comment) o;
-        return Objects.equals(id, comment.id) && Objects.equals(book, comment.book) && Objects.equals(author, comment.author) && Objects.equals(text, comment.text) && Objects.equals(createdAt, comment.createdAt);
+        return Objects.equals(id, comment.id) && Objects.equals(book, comment.book) && Objects.equals(text, comment.text) && Objects.equals(createdAt, comment.createdAt);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, book, author, text, createdAt);
+        return Objects.hash(id, book, text, createdAt);
     }
 }

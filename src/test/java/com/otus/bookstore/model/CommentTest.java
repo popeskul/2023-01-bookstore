@@ -26,7 +26,7 @@ class CommentTest {
         book = entityManager.find(Book.class, 1L);
         author = book.getAuthor();
 
-        commentTemplate = Comment.builder().id(10L).book(book).author(author).text("Test").build();
+        commentTemplate = Comment.builder().id(10L).book(book).text("Test").build();
     }
 
     @Test
@@ -81,6 +81,5 @@ class CommentTest {
         assertEquals(newComment, foundComment);
 
         assertEquals(newComment.getBook(), foundComment.getBook());
-        assertEquals(newComment.getAuthor(), foundComment.getAuthor());
     }
 }

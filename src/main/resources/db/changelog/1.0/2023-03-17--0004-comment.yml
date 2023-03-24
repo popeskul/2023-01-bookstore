@@ -18,11 +18,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
               - column:
-                  name: author_id
-                  type: int
-                  constraints:
-                    nullable: false
-              - column:
                   name: text
                   type: varchar(1000)
                   constraints:
@@ -40,10 +35,3 @@ databaseChangeLog:
             referencedColumnNames: id
             foreignKeyName: fk_comment_book
             constraintName: fk_comment_book_constraint
-        - addForeignKeyConstraint:
-            baseTableName: comment
-            baseColumnNames: author_id
-            referencedTableName: author
-            referencedColumnNames: id
-            foreignKeyName: fk_comment_author
-            constraintName: fk_comment_author_constraint
