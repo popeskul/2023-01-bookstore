@@ -52,7 +52,7 @@ public final class Book {
     @ToString.Exclude
     private final Genre genre;
 
-    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "book")
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 
