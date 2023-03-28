@@ -3,8 +3,8 @@ package com.otus.bookstore.repository.impl;
 import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.repository.CommentRepository;
-import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,12 +58,7 @@ public class CommentRepositoryJpa implements CommentRepository {
     @Override
     public List<Comment> findAll() {
         try {
-            EntityGraph<?> entityGraph = entityManager.getEntityGraph("comment-entity-graph");
-
             TypedQuery<Comment> query = entityManager.createQuery("SELECT c FROM Comment c", Comment.class);
-
-            query.setHint("javax.persistence.fetchgraph", entityGraph);
-
             return query.getResultList();
         } catch (Exception e) {
             throw new RuntimeException(ERROR_GET_ALL_COMMENTS, e);
@@ -73,14 +68,11 @@ public class CommentRepositoryJpa implements CommentRepository {
     @Override
     public Optional<Comment> findById(Long id) {
         try {
-            EntityGraph<?> entityGraph = entityManager.getEntityGraph("comment-entity-graph");
-
             TypedQuery<Comment> query = entityManager.createQuery("SELECT c FROM Comment c WHERE c.id = :id", Comment.class);
             query.setParameter("id", id);
-
-            query.setHint("javax.persistence.fetchgraph", entityGraph);
-
             return Optional.ofNullable(query.getSingleResult());
+        } catch (NoResultException e) {
+            return Optional.empty();
         } catch (RuntimeException e) {
             throw new RuntimeException(String.format(ERROR_GET_COMMENT_BY_ID, id), e);
         }

@@ -15,16 +15,13 @@ import java.util.Objects;
 @Builder(toBuilder = true)
 @ToString
 @AllArgsConstructor
-@NamedEntityGraph(name = "comment-entity-graph", attributeNodes = {
-        @NamedAttributeNode("book")
-})
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private final Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "book_id", nullable = false)
     @ToString.Exclude
     private final Book book;
