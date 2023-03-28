@@ -18,6 +18,7 @@ import java.util.Optional;
 @Repository
 public class BookRepositoryJpa implements BookRepository {
     public static final String ERROR_SAVE_BOOK = "Book cannot be saved %s";
+    public static final String ERROR_FIND_ALL_BOOKS = "Books cannot be found";
 
     private final EntityManager entityManager;
 
@@ -55,7 +56,7 @@ public class BookRepositoryJpa implements BookRepository {
 
             return query.getResultList();
         } catch (Exception e) {
-            throw new EntitySaveException(String.format(ERROR_SAVE_BOOK, 0));
+            throw new EntitySaveException(ERROR_FIND_ALL_BOOKS);
         }
     }
 
