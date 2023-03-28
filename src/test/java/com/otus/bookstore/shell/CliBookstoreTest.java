@@ -1,7 +1,7 @@
 package com.otus.bookstore.shell;
 
 import com.otus.bookstore.model.Book;
-import com.otus.bookstore.service.BookService;
+import com.otus.bookstore.service.BookCliService;
 import com.otus.bookstore.utils.ShellBookPatterns;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ class BookstoreCliTest {
     private ResultHandlerService resultHandlerService;
 
     @MockBean
-    private BookService bookService;
+    private BookCliService bookCliService;
 
     @Autowired
     private Shell shell;
@@ -50,7 +50,7 @@ class BookstoreCliTest {
 
     @Test
     void shouldGetAllBooks() throws Exception {
-        List<Book> books = bookService.getAll();
+        List<Book> books = bookCliService.getAll();
 
         when(inputProvider.readInput())
                 .thenReturn(() -> COMMAND_GET_ALL_BOOKS)
@@ -68,7 +68,7 @@ class BookstoreCliTest {
 
     @Test
     void shouldGetBookById() throws Exception {
-        Optional<Book> book = bookService.getById(1);
+        Optional<Book> book = bookCliService.getById(1);
 
         when(inputProvider.readInput())
                 .thenReturn(() -> COMMAND_GET_BOOK_BY_ID + " 1")
@@ -91,9 +91,9 @@ class BookstoreCliTest {
                 Book.builder().id(2L).build()
         );
 
-        when(bookService.getAll()).thenReturn(books);
+        when(bookCliService.getAll()).thenReturn(books);
 
-        long maxId = bookService.getAll().stream()
+        long maxId = bookCliService.getAll().stream()
                 .mapToLong(Book::getId)
                 .max()
                 .orElse(0);

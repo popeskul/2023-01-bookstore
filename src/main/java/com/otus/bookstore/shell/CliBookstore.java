@@ -1,7 +1,7 @@
 package com.otus.bookstore.shell;
 
 import com.otus.bookstore.model.Book;
-import com.otus.bookstore.service.BookService;
+import com.otus.bookstore.service.BookCliService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -14,18 +14,18 @@ import java.util.Optional;
 @ShellComponent
 @RequiredArgsConstructor
 public class BookstoreCli {
-    private final BookService bookService;
+    private final BookCliService bookCliService;
 
     @ShellMethod(value = "Get all books", key = {"book list"})
     public List<Book> getAllBooks() {
-        return bookService.getAll();
+        return bookCliService.getAll();
     }
 
     @ShellMethod(value = "Get book by id", key = {"book find"})
     public Optional<Book> getBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
-        return bookService.getById(Integer.parseInt(id));
+        return bookCliService.getById(Integer.parseInt(id));
     }
 
     @ShellMethod(value = "Create book", key = {"book create"})
@@ -36,11 +36,11 @@ public class BookstoreCli {
             @ShellOption(defaultValue = "authorId") String authorId,
             @ShellOption(defaultValue = "genreId") String genreId
     ) {
-        return bookService.create(title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
+        return bookCliService.create(title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
     }
 
     @ShellMethod(value = "Update book", key = {"book update"})
-    public void updateBook(
+    public Book updateBook(
             @ShellOption(defaultValue = "id") String id,
             @ShellOption(defaultValue = "title") String title,
             @ShellOption(defaultValue = "description") String description,
@@ -48,16 +48,18 @@ public class BookstoreCli {
             @ShellOption(defaultValue = "authorId") String authorId,
             @ShellOption(defaultValue = "genreId") String genreId
     ) {
-        bookService.update(
-                Integer.parseInt(id), title, description, new BigDecimal(price),
-                Integer.parseInt(authorId), Integer.parseInt(genreId)
-        );
+        try {
+            return bookCliService.update(Long.parseLong(id), title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     @ShellMethod(value = "Delete book by id", key = {"book delete"})
     public void deleteBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
-        bookService.deleteById(Long.parseLong(id));
+        bookCliService.deleteById(Long.parseLong(id));
     }
 }

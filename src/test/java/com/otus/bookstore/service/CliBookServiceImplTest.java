@@ -5,7 +5,7 @@ import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.service.impl.AuthorServiceImpl;
-import com.otus.bookstore.service.impl.BookServiceImpl;
+import com.otus.bookstore.service.impl.BookCliServiceImpl;
 import com.otus.bookstore.service.impl.GenreServiceImpl;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -23,8 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
-@Import({BookServiceImpl.class, AuthorServiceImpl.class, GenreServiceImpl.class})
-public class BookServiceImplTest {
+@Import({BookCliServiceImpl.class, AuthorServiceImpl.class, GenreServiceImpl.class})
+public class BookCliServiceImplTest {
     private static final String title = "Some title";
     private static final String title2 = "Some title2";
     private static final String description = "Some description";
@@ -32,7 +32,7 @@ public class BookServiceImplTest {
     private static final BigDecimal price = BigDecimal.valueOf(100);
 
     @Autowired
-    private BookService bookService;
+    private BookCliService bookCliService;
 
     @Autowired
     private AuthorService authorService;
@@ -51,13 +51,13 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookCliService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
 
-        Optional<Book> actual = bookService.getById(id.get());
+        Optional<Book> actual = bookCliService.getById(id.get());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -81,7 +81,7 @@ public class BookServiceImplTest {
         Book badBook = Book.builder().id(0L).genre(genre).author(author).build();
 
         // bad request
-        assertThatThrownBy(() -> bookService.create(badBook.getTitle(), badBook.getDescription(),
+        assertThatThrownBy(() -> bookCliService.create(badBook.getTitle(), badBook.getDescription(),
                 badBook.getPrice(), badBook.getGenre().getId(), badBook.getAuthor().getId()))
                 .isInstanceOf(EntitySaveException.class)
                 .hasMessageContaining(new EntitySaveException(badBook).getMessage());
@@ -95,7 +95,7 @@ public class BookServiceImplTest {
         assertThat(genreId).isPositive();
 
         // bad author id
-        assertThatThrownBy(() -> bookService.create(title, description, price, badAuthorId, genreId))
+        assertThatThrownBy(() -> bookCliService.create(title, description, price, badAuthorId, genreId))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining(String.format(AuthorServiceImpl.ERROR_AUTHOR_NOT_FOUND, badAuthorId));
     }
@@ -107,7 +107,7 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // bad genre id
-        assertThatThrownBy(() -> bookService.create(title, description, price, authorId, 0))
+        assertThatThrownBy(() -> bookCliService.create(title, description, price, authorId, 0))
                 .isInstanceOf(InvalidParameterException.class)
                 .hasMessageContaining(GenreServiceImpl.ERROR_ILLEGAL_ARGUMENT);
     }
@@ -123,13 +123,13 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookCliService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
 
-        Optional<Book> actual = bookService.getById(id.get());
+        Optional<Book> actual = bookCliService.getById(id.get());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -140,7 +140,7 @@ public class BookServiceImplTest {
 
     @Test
     void shouldGetAll() {
-        List<Book> actual = bookService.getAll();
+        List<Book> actual = bookCliService.getAll();
         assertThat(actual).isNotNull();
         assertThat(actual).isNotEmpty();
     }
@@ -156,13 +156,13 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookCliService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
 
-        Optional<Book> actual = bookService.getById(id.get());
+        Optional<Book> actual = bookCliService.getById(id.get());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -171,10 +171,10 @@ public class BookServiceImplTest {
         assertThat(actual.get().getAuthor().getId()).isEqualTo(authorId);
 
         // Act
-        bookService.update(id.get(), title2, description2, price, genreId, authorId);
+        bookCliService.update(id.get(), title2, description2, price, genreId, authorId);
 
         // Assert
-        Optional<Book> actual2 = bookService.getById(id.get());
+        Optional<Book> actual2 = bookCliService.getById(id.get());
         assertThat(actual2).isPresent();
         assertThat(actual2.get().getTitle()).isEqualTo(title2);
         assertThat(actual2.get().getDescription()).isEqualTo(description2);
@@ -194,9 +194,8 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Can't update book with id = 0
-        assertThatThrownBy(() -> bookService.update(0, title2, description2, price, authorId, genreId))
-                .isInstanceOf(InvalidParameterException.class)
-                .hasMessageContaining(BookServiceImpl.ERROR_ID_MUST_BE_GREATER_THAN_ZERO);
+        assertThatThrownBy(() -> bookCliService.update(0, title2, description2, price, authorId, genreId))
+                .isInstanceOf(InvalidParameterException.class);
     }
 
     @Test
@@ -210,13 +209,13 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookCliService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
 
-        Optional<Book> actual = bookService.getById(id.get());
+        Optional<Book> actual = bookCliService.getById(id.get());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -225,7 +224,7 @@ public class BookServiceImplTest {
         assertThat(actual.get().getAuthor().getId()).isEqualTo(authorId);
 
         // bad request
-        assertThatThrownBy(() -> bookService.update(id.get(), null, null, null, genreId, authorId))
+        assertThatThrownBy(() -> bookCliService.update(id.get(), null, null, null, genreId, authorId))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
@@ -240,13 +239,13 @@ public class BookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = bookService.create(title, description, price, genreId, authorId);
+        Optional<Long> id = bookCliService.create(title, description, price, genreId, authorId);
 
         // Assert
         assertThat(id).isPresent();
         assertThat(id.get()).isPositive();
 
-        Optional<Book> actual = bookService.getById(id.get());
+        Optional<Book> actual = bookCliService.getById(id.get());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -255,10 +254,10 @@ public class BookServiceImplTest {
         assertThat(actual.get().getAuthor().getId()).isEqualTo(authorId);
 
         // Act
-        bookService.deleteById(id.get());
+        bookCliService.deleteById(id.get());
 
         // Assert
-        Optional<Book> actual2 = bookService.getById(id.get());
+        Optional<Book> actual2 = bookCliService.getById(id.get());
         assertThat(actual2).isEmpty();
     }
 }

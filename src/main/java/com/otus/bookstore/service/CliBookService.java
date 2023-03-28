@@ -6,14 +6,14 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-public interface BookService {
+public interface BookCliService {
     List<Book> getAll();
 
     Optional<Book> getById(long id);
 
     Optional<Long> create(String title, String description, BigDecimal price, long authorId, long genreId);
 
-    void update(long id, String title, String description, BigDecimal price, long authorId, long genreId);
+    Book update(long id, String title, String description, BigDecimal price, long authorId, long genreId);
 
     void deleteById(long id);
 }
