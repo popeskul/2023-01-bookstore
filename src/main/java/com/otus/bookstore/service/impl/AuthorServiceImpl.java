@@ -14,6 +14,8 @@ import java.util.Optional;
 @Service
 public class AuthorServiceImpl implements AuthorService {
     public static final String ERROR_AUTHOR_NOT_FOUND = "Author with id %d not found";
+    public static final String ERROR_AUTHOR_NULL = "Author is null";
+    public static final String ERROR_AUTHOR_ALREADY_EXISTS = "Author already exists";
 
     private final AuthorRepository authorRepository;
 
@@ -23,27 +25,26 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional
-    public Optional<Long> create(Author author) {
-        try {
-            Optional<Author> savedAuthor = authorRepository.save(author);
-            if (savedAuthor.isPresent()) {
-                return Optional.of(savedAuthor.get().getId());
-            } else {
-                throw new EntitySaveException(author);
-            }
-        } catch (RuntimeException e) {
-            throw new EntitySaveException(author, e);
+    public Author create(Author author) {
+        if (author == null) {
+            throw new IllegalArgumentException(ERROR_AUTHOR_NULL);
         }
+
+        if (author.getId() != 0) {
+            throw new EntitySaveException(ERROR_AUTHOR_ALREADY_EXISTS);
+        }
+
+        return authorRepository.save(author);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Author> getById(long id) {
-        try {
-            return authorRepository.findById(id);
-        } catch (RuntimeException e) {
-            throw new EntityNotFoundException(String.format(ERROR_AUTHOR_NOT_FOUND, id), e);
+    public Optional<Author> findById(long id) {
+        if (id == 0) {
+            throw new EntityNotFoundException(String.format(ERROR_AUTHOR_NOT_FOUND, id));
         }
+
+        return authorRepository.findById(id);
     }
 
     @Override
@@ -54,13 +55,17 @@ public class AuthorServiceImpl implements AuthorService {
 
     @Override
     @Transactional
-    public void update(Author author) {
-        Optional<Author> existingAuthor = authorRepository.findById(author.getId());
-        if (existingAuthor.isPresent()) {
-            authorRepository.save(author);
-        } else {
+    public Author update(Author author) {
+        if (author == null) {
+            throw new IllegalArgumentException(ERROR_AUTHOR_NULL);
+        }
+
+        if (author.getId() == 0) {
             throw new EntitySaveException(author);
         }
+
+        authorRepository.findById(author.getId()).orElseThrow();
+        return authorRepository.save(author);
     }
 
     @Override

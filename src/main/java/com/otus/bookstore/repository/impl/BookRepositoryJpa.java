@@ -5,11 +5,11 @@ import com.otus.bookstore.model.Book;
 import com.otus.bookstore.repository.BookRepository;
 import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.TypedQuery;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
-import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,8 +17,9 @@ import java.util.Optional;
 
 @Repository
 public class BookRepositoryJpa implements BookRepository {
-    public static final String ERROR_SAVE_BOOK = "Book cannot be saved %s";
     public static final String ERROR_FIND_ALL_BOOKS = "Books cannot be found";
+    public static final String ERROR_FIND_BOOK_BY_ID = "Book cannot be found by id %s";
+    public static final String ERROR_DELETE_BOOK = "Book cannot be deleted %s";
 
     private final EntityManager entityManager;
 
@@ -29,10 +30,6 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public Optional<Book> findById(long id) {
         try {
-            if (id <= 0) {
-                throw new InvalidParameterException(String.format(ERROR_SAVE_BOOK, id));
-            }
-
             EntityGraph<?> graph = entityManager.getEntityGraph("book-entity-graph");
 
             Map<String, Object> properties = new HashMap<>();
@@ -41,7 +38,7 @@ public class BookRepositoryJpa implements BookRepository {
 
             return Optional.ofNullable(entityManager.find(Book.class, id, properties));
         } catch (Exception e) {
-            throw new EntitySaveException(String.format(ERROR_SAVE_BOOK, id));
+            throw new EntityNotFoundException(String.format(ERROR_FIND_BOOK_BY_ID, id), e);
         }
     }
 
@@ -56,19 +53,31 @@ public class BookRepositoryJpa implements BookRepository {
 
             return query.getResultList();
         } catch (Exception e) {
-            throw new EntitySaveException(ERROR_FIND_ALL_BOOKS);
+            throw new EntityNotFoundException(ERROR_FIND_ALL_BOOKS, e);
         }
     }
 
     @Override
     public Optional<Book> save(Book book) {
+        if (book.getId() == 0) {
+            return create(book);
+        } else {
+            return update(book);
+        }
+    }
+
+    private Optional<Book> create(Book book) {
         try {
-            if (book.getId() == 0) {
-                entityManager.persist(book);
-                return Optional.of(book);
-            } else {
-                return Optional.of(entityManager.merge(book));
-            }
+            entityManager.persist(book);
+            return Optional.of(book);
+        } catch (Exception e) {
+            throw new EntitySaveException(book, e);
+        }
+    }
+
+    private Optional<Book> update(Book book) {
+        try {
+            return Optional.of(entityManager.merge(book));
         } catch (Exception e) {
             throw new EntitySaveException(book, e);
         }
@@ -77,16 +86,12 @@ public class BookRepositoryJpa implements BookRepository {
     @Override
     public void deleteById(long id) {
         try {
-            if (id <= 0) {
-                throw new InvalidParameterException(String.format(ERROR_SAVE_BOOK, id));
-            }
-
             Book book = entityManager.find(Book.class, id);
             if (book != null) {
                 entityManager.remove(book);
             }
         } catch (DataAccessException e) {
-            throw new EntitySaveException(String.format(ERROR_SAVE_BOOK, id));
+            throw new RuntimeException(String.format(ERROR_DELETE_BOOK, id), e);
         }
     }
 }

@@ -12,10 +12,6 @@ public class EntitySaveException extends RuntimeException {
         this.entity = entity;
     }
 
-    public Object getEntity() {
-        return entity;
-    }
-
     @Override
     public String getMessage() {
         return String.format("Failed to save entity: %s", entity.toString());

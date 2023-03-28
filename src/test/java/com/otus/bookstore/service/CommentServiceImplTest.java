@@ -47,24 +47,24 @@ public class CommentServiceImplTest {
 
         book = Book.builder().title("title1").author(author).build();
 
-        comment = Comment.builder().book(book).text("text1").build();
+        comment = Comment.builder().id(0L).book(book).text("text1").build();
     }
 
     @Test
-    void shouldSaveComment() {
+    void shouldCreateComment() {
         when(commentRepository.save(comment)).thenReturn(comment);
 
-        Comment savedComment = commentService.save(comment);
+        Comment savedComment = commentService.create(comment);
         assertThat(savedComment).isEqualTo(comment);
     }
 
     @Test
-    void shouldThrowExceptionWhenSaveComment() {
-        when(commentRepository.save(comment)).thenThrow(new EntitySaveException(String.format(CommentRepositoryJpa.ERROR_WHILE_SAVING_COMMENT, comment)));
+    void shouldThrowExceptionWhenCreateComment() {
+        when(commentRepository.save(comment)).thenThrow(new EntitySaveException(String.format(CommentRepositoryJpa.ERROR_CREATE_COMMENT, comment)));
 
-        assertThatThrownBy(() -> commentService.save(comment))
+        assertThatThrownBy(() -> commentService.create(comment))
                 .isInstanceOf(EntitySaveException.class)
-                .hasMessageContaining(String.format(CommentRepositoryJpa.ERROR_WHILE_SAVING_COMMENT, comment));
+                .hasMessageContaining(String.format(CommentRepositoryJpa.ERROR_CREATE_COMMENT, comment));
     }
 
     @Test
@@ -86,13 +86,13 @@ public class CommentServiceImplTest {
     }
 
     @Test
-    @DisplayName("should throw EntityNotFoundException result of get comment by id is empty")
+    @DisplayName("should not find comment by id")
     void shouldThrowExceptionWhenResultGetByIdIsEmpty() {
         when(commentRepository.findById(ID)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> commentService.findById(ID))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining(String.format(CommentServiceImpl.ERROR_NOT_FOUND_AUTHOR, ID));
+        Optional<Comment> comment = commentService.findById(ID);
+
+        assertThat(comment).isEmpty();
     }
 
     @Test

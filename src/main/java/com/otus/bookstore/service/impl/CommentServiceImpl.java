@@ -19,6 +19,8 @@ import java.util.Optional;
 public class CommentServiceImpl implements CommentService {
     public static final String ERROR_NOT_FOUND_AUTHOR = "Comment with id %s not found";
     public static final String ERROR_NOT_FOUND_BOOK = "Book with id %s not found";
+    public static final String ERROR_COMMENT_NULL = "Comment is null";
+    public static final String ERROR_COMMENT_ID_MUST_NOT_BE_SET = "Comment id must not be set";
 
     private final CommentRepository commentRepository;
     private final BookRepository bookRepository;
@@ -32,14 +34,30 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public Comment save(Comment comment) {
-        try {
-            comment = commentRepository.save(comment);
-
-            return comment;
-        } catch (RuntimeException e) {
-            throw new EntitySaveException(e.getMessage(), e);
+    public Comment create(Comment comment) {
+        if (comment == null) {
+            throw new IllegalArgumentException(ERROR_COMMENT_NULL);
         }
+
+        if (comment.getId() != 0) {
+            throw new EntitySaveException(ERROR_COMMENT_ID_MUST_NOT_BE_SET);
+        }
+
+        return commentRepository.save(comment);
+    }
+
+    @Override
+    @Transactional
+    public Comment update(Comment comment) {
+        if (comment == null) {
+            throw new IllegalArgumentException(ERROR_COMMENT_NULL);
+        }
+
+        if (comment.getId() != 0) {
+            throw new EntitySaveException(ERROR_COMMENT_ID_MUST_NOT_BE_SET);
+        }
+
+        return commentRepository.save(comment);
     }
 
     @Override
@@ -55,13 +73,7 @@ public class CommentServiceImpl implements CommentService {
             throw new InvalidParameterException(String.format(ERROR_NOT_FOUND_AUTHOR, id));
         }
 
-        Optional<Comment> commentOptional = commentRepository.findById(id);
-
-        if (commentOptional.isEmpty()) {
-            throw new EntityNotFoundException(String.format(ERROR_NOT_FOUND_AUTHOR, id));
-        }
-
-        return commentOptional;
+        return commentRepository.findById(id);
     }
 
     @Override
@@ -88,8 +100,6 @@ public class CommentServiceImpl implements CommentService {
             throw new EntityNotFoundException(String.format(ERROR_NOT_FOUND_BOOK, bookId));
         }
 
-        Book book = bookOptional.get();
-
-        return book.getComments();
+        return bookOptional.get().getComments();
     }
 }

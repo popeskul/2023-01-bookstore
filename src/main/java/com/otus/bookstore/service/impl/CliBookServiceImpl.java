@@ -4,7 +4,7 @@ import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.service.AuthorService;
-import com.otus.bookstore.service.BookCliService;
+import com.otus.bookstore.service.CliBookService;
 import com.otus.bookstore.service.BookService;
 import com.otus.bookstore.service.GenreService;
 import org.springframework.stereotype.Service;
@@ -15,13 +15,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class BookCliServiceImpl implements BookCliService {
+public class CliBookServiceImpl implements CliBookService {
 
     private final BookService bookService;
     private final AuthorService authorService;
     private final GenreService genreService;
 
-    public BookCliServiceImpl(AuthorService authorService, GenreService genreService, BookService bookService) {
+    public CliBookServiceImpl(AuthorService authorService, GenreService genreService, BookService bookService) {
         this.authorService = authorService;
         this.genreService = genreService;
         this.bookService = bookService;

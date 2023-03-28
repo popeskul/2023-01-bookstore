@@ -16,7 +16,11 @@ import java.util.Optional;
 
 @Repository
 public class CommentRepositoryJpa implements CommentRepository {
-    public static final String ERROR_WHILE_SAVING_COMMENT = "Error while saving comment: %s";
+    public static final String ERROR_GET_COMMENT_BY_ID = "Error while getting comment by id: %d";
+    public static final String ERROR_GET_ALL_COMMENTS = "Error while getting all comments";
+    public static final String ERROR_CREATE_COMMENT = "Error while creating comment: %s";
+    public static final String ERROR_UPDATE_COMMENT = "Error while updating comment: %s";
+    public static final String ERROR_DELETE_COMMENT = "Error while deleting comment by id: %d";
 
     @PersistenceContext
     private final EntityManager entityManager;
@@ -28,14 +32,27 @@ public class CommentRepositoryJpa implements CommentRepository {
 
     @Override
     public Comment save(Comment comment) {
+        if (comment.getId() == 0) {
+            return create(comment).orElseThrow();
+        } else {
+            return update(comment).orElseThrow();
+        }
+    }
+
+    private Optional<Comment> create(Comment comment) {
         try {
-            if (comment == null) {
-                throw new IllegalArgumentException("Comment cannot be null");
-            }
             entityManager.persist(comment);
-            return comment;
-        } catch (DataAccessException e) {
-            throw new EntitySaveException(String.format(ERROR_WHILE_SAVING_COMMENT, comment), e);
+            return Optional.of(comment);
+        } catch (Exception e) {
+            throw new EntitySaveException(comment, e);
+        }
+    }
+
+    private Optional<Comment> update(Comment comment) {
+        try {
+            return Optional.of(entityManager.merge(comment));
+        } catch (Exception e) {
+            throw new EntitySaveException(comment, e);
         }
     }
 
@@ -50,7 +67,7 @@ public class CommentRepositoryJpa implements CommentRepository {
 
             return query.getResultList();
         } catch (Exception e) {
-            throw new EntitySaveException(String.format(ERROR_WHILE_SAVING_COMMENT, 0));
+            throw new RuntimeException(ERROR_GET_ALL_COMMENTS, e);
         }
     }
 
@@ -64,9 +81,9 @@ public class CommentRepositoryJpa implements CommentRepository {
 
             query.setHint("javax.persistence.fetchgraph", entityGraph);
 
-            return query.getResultList().stream().findFirst();
-        } catch (Exception e) {
-            throw new EntitySaveException(String.format(ERROR_WHILE_SAVING_COMMENT, id));
+            return Optional.ofNullable(query.getSingleResult());
+        } catch (RuntimeException e) {
+            throw new RuntimeException(String.format(ERROR_GET_COMMENT_BY_ID, id), e);
         }
     }
 
@@ -78,7 +95,7 @@ public class CommentRepositoryJpa implements CommentRepository {
                 entityManager.remove(comment);
             }
         } catch (DataAccessException e) {
-            throw new EntitySaveException(String.format(ERROR_WHILE_SAVING_COMMENT, id), e);
+            throw new RuntimeException(String.format(ERROR_DELETE_COMMENT, id), e);
         }
     }
 }

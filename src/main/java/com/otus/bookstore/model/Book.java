@@ -52,7 +52,7 @@ public final class Book {
     @ToString.Exclude
     private final Genre genre;
 
-    @OneToMany(mappedBy = "book")
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
     @Builder.Default
     private List<Comment> comments = new ArrayList<>();
 

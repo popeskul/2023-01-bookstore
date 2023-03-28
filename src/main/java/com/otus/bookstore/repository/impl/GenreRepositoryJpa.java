@@ -6,11 +6,9 @@ import com.otus.bookstore.repository.GenreRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.TypedQuery;
-import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,10 +26,6 @@ public class GenreRepositoryJpa implements GenreRepository {
     @Override
     public Optional<Genre> findById(long id) {
         try {
-            if (id == 0) {
-                throw new InvalidParameterException(String.format(ERROR_GENRE_NOT_FOUND, id));
-            }
-
             return Optional.ofNullable(entityManager.find(Genre.class, id));
         } catch (DataAccessException e) {
             throw new EntityNotFoundException(String.format(ERROR_GENRE_NOT_FOUND, id));
@@ -40,31 +34,36 @@ public class GenreRepositoryJpa implements GenreRepository {
 
     @Override
     public List<Genre> findAll() {
-        try {
-            TypedQuery<Genre> query = entityManager.createQuery("SELECT g FROM Genre g", Genre.class);
-            List<Genre> genres = query.getResultList();
-            if (genres.isEmpty()) {
-                throw new EntityNotFoundException(ERROR_GENRE_NOT_FOUND_RESULT);
-            }
-            return genres;
-        } catch (DataAccessException e) {
-            throw new EntityNotFoundException(ERROR_GENRE_NOT_FOUND_RESULT + " " + e.getMessage());
+        TypedQuery<Genre> query = entityManager.createQuery("SELECT g FROM Genre g", Genre.class);
+        List<Genre> genres = query.getResultList();
+        if (genres.isEmpty()) {
+            throw new EntityNotFoundException(ERROR_GENRE_NOT_FOUND_RESULT);
         }
+        return genres;
     }
 
     @Override
     public Optional<Genre> save(Genre genre) {
-        try {
-            if (genre.getId() == 0) {
-                entityManager.persist(genre);
-            } else {
-                if (!entityManager.contains(genre)) {
-                    genre = entityManager.merge(genre);
-                }
-            }
+        if (genre.getId() == 0) {
+            return create(genre);
+        } else {
+            return update(genre);
+        }
+    }
 
+    private Optional<Genre> create(Genre genre) {
+        try {
+            entityManager.persist(genre);
             return Optional.of(genre);
-        } catch (ConstraintViolationException | DataAccessException e) {
+        } catch (Exception e) {
+            throw new EntitySaveException(genre, e);
+        }
+    }
+
+    private Optional<Genre> update(Genre genre) {
+        try {
+            return Optional.of(entityManager.merge(genre));
+        } catch (Exception e) {
             throw new EntitySaveException(genre, e);
         }
     }
@@ -75,8 +74,6 @@ public class GenreRepositoryJpa implements GenreRepository {
             Genre genre = entityManager.find(Genre.class, id);
             if (genre != null) {
                 entityManager.remove(genre);
-            } else {
-                throw new EntityNotFoundException(String.format(ERROR_GENRE_NOT_FOUND, id));
             }
         } catch (DataAccessException e) {
             throw new EntityNotFoundException(String.format(ERROR_GENRE_NOT_FOUND, id));

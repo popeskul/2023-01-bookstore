@@ -1,7 +1,7 @@
 package com.otus.bookstore.shell;
 
 import com.otus.bookstore.model.Book;
-import com.otus.bookstore.service.BookCliService;
+import com.otus.bookstore.service.CliBookService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
@@ -13,19 +13,19 @@ import java.util.Optional;
 
 @ShellComponent
 @RequiredArgsConstructor
-public class BookstoreCli {
-    private final BookCliService bookCliService;
+public class CliBookstore {
+    private final CliBookService cliBookService;
 
     @ShellMethod(value = "Get all books", key = {"book list"})
     public List<Book> getAllBooks() {
-        return bookCliService.getAll();
+        return cliBookService.getAll();
     }
 
     @ShellMethod(value = "Get book by id", key = {"book find"})
     public Optional<Book> getBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
-        return bookCliService.getById(Integer.parseInt(id));
+        return cliBookService.getById(Integer.parseInt(id));
     }
 
     @ShellMethod(value = "Create book", key = {"book create"})
@@ -36,7 +36,7 @@ public class BookstoreCli {
             @ShellOption(defaultValue = "authorId") String authorId,
             @ShellOption(defaultValue = "genreId") String genreId
     ) {
-        return bookCliService.create(title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
+        return cliBookService.create(title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
     }
 
     @ShellMethod(value = "Update book", key = {"book update"})
@@ -49,7 +49,7 @@ public class BookstoreCli {
             @ShellOption(defaultValue = "genreId") String genreId
     ) {
         try {
-            return bookCliService.update(Long.parseLong(id), title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
+            return cliBookService.update(Long.parseLong(id), title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return null;
@@ -60,6 +60,6 @@ public class BookstoreCli {
     public void deleteBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
-        bookCliService.deleteById(Long.parseLong(id));
+        cliBookService.deleteById(Long.parseLong(id));
     }
 }

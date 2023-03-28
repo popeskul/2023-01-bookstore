@@ -10,7 +10,7 @@ public interface AuthorRepository {
 
     List<Author> findAll();
 
-    Optional<Author> save(Author author);
+    Author save(Author author);
 
-    Optional<Author> deleteById(long id);
+    boolean deleteById(long id);
 }
