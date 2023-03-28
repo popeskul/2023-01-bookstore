@@ -19,7 +19,6 @@ public class CommentRepositoryJpa implements CommentRepository {
     public static final String ERROR_GET_COMMENT_BY_ID = "Error while getting comment by id: %d";
     public static final String ERROR_GET_ALL_COMMENTS = "Error while getting all comments";
     public static final String ERROR_CREATE_COMMENT = "Error while creating comment: %s";
-    public static final String ERROR_UPDATE_COMMENT = "Error while updating comment: %s";
     public static final String ERROR_DELETE_COMMENT = "Error while deleting comment by id: %d";
 
     @PersistenceContext
