@@ -15,9 +15,6 @@ import java.util.Objects;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @Getter
-@NamedEntityGraph(name = "book-entity-graph", attributeNodes = {
-        @NamedAttributeNode("comments"),
-})
 public final class Book {
 
     @Id
@@ -34,12 +31,12 @@ public final class Book {
     @Column(name = "price", nullable = false)
     private final BigDecimal price;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "author_id")
     @ToString.Exclude
     private final Author author;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "genre_id")
     @ToString.Exclude
     private final Genre genre;

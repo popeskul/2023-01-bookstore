@@ -2,6 +2,7 @@ package com.otus.bookstore.service;
 
 import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.*;
+import com.otus.bookstore.repository.BookRepository;
 import com.otus.bookstore.repository.CommentRepository;
 import com.otus.bookstore.repository.impl.CommentRepositoryJpa;
 import com.otus.bookstore.service.impl.CommentServiceImpl;
@@ -34,6 +35,9 @@ public class CommentServiceImplTest {
 
     @MockBean
     private CommentRepository commentRepository;
+
+    @MockBean
+    private BookRepository bookRepository;
 
     @Autowired
     private CommentService commentService;
@@ -109,5 +113,26 @@ public class CommentServiceImplTest {
         when(commentRepository.findById(ID)).thenReturn(Optional.of(comment));
 
         commentService.deleteById(ID);
+    }
+
+    @Test
+    void getCommentsByBookIdTest() {
+        long bookId = 1L;
+
+        Book preBook = Book.builder().id(bookId).build();
+
+        List<Comment> commentsByBookId = List.of(
+                Comment.builder().id(1L).book(book).text("text1").build(),
+                Comment.builder().id(2L).book(book).text("text2").build()
+        );
+
+        Book book = preBook.toBuilder().comments(commentsByBookId).build();
+
+        when(bookRepository.findById(bookId)).thenReturn(Optional.of(book));
+
+        List<Comment> comments = commentService.findByBookId(bookId);
+
+        assertThat(comments).hasSize(2);
+        assertThat(comments).containsAll(commentsByBookId);
     }
 }

@@ -38,7 +38,6 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<Author> findById(long id) {
         if (id == 0) {
             throw new EntityNotFoundException(String.format(ERROR_AUTHOR_NOT_FOUND, id));
@@ -48,7 +47,6 @@ public class AuthorServiceImpl implements AuthorService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Author> getAll() {
         return authorRepository.findAll();
     }

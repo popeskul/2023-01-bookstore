@@ -40,7 +40,6 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<Genre> getById(long id) {
         if (id == 0) {
             throw new InvalidParameterException(ERROR_ILLEGAL_ARGUMENT);
@@ -50,7 +49,6 @@ public class GenreServiceImpl implements GenreService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Genre> getAll() {
         return genreRepository.findAll();
     }

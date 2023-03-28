@@ -28,13 +28,11 @@ public class CliBookServiceImpl implements CliBookService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Book> getAll() {
         return bookService.findAll();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<Book> getById(long id) {
         return bookService.findById(id);
     }

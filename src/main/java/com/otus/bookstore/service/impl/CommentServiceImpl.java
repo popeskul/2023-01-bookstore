@@ -61,13 +61,11 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public List<Comment> getAll() {
         return commentRepository.findAll();
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Optional<Comment> findById(Long id) {
         if (id <= 0) {
             throw new InvalidParameterException(String.format(ERROR_NOT_FOUND_AUTHOR, id));
@@ -92,7 +90,7 @@ public class CommentServiceImpl implements CommentService {
         commentRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
+    @Override
     public List<Comment> findByBookId(Long bookId) {
         Optional<Book> bookOptional = bookRepository.findById(bookId);
 
