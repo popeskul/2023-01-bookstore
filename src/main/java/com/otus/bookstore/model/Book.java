@@ -1,12 +1,12 @@
 package com.otus.bookstore.model;
 
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.ToString;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,13 +16,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 @NamedEntityGraph(name = "book-entity-graph", attributeNodes = {
-        @NamedAttributeNode("author"),
-        @NamedAttributeNode("genre"),
-        @NamedAttributeNode(value = "comments", subgraph = "comment-subgraph")
-}, subgraphs = {
-        @NamedSubgraph(name = "comment-subgraph", attributeNodes = {
-                @NamedAttributeNode("book")
-        })
+        @NamedAttributeNode("comments"),
 })
 public final class Book {
 
@@ -41,20 +35,18 @@ public final class Book {
     private final BigDecimal price;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "author_id", nullable = false)
-    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "author_id")
     @ToString.Exclude
     private final Author author;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "genre_id", nullable = false)
-    @Fetch(FetchMode.JOIN)
+    @JoinColumn(name = "genre_id")
     @ToString.Exclude
     private final Genre genre;
 
-    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
-    @Builder.Default
-    private List<Comment> comments = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "book_id")
+    private List<Comment> comments;
 
     public Book() {
         this.id = 0L;

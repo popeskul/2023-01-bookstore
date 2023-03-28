@@ -21,9 +21,8 @@ public class Comment {
     @Column(name = "id")
     private final Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)
-    @ToString.Exclude
     private final Book book;
 
     @Column(name = "text", nullable = false)

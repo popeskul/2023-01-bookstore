@@ -41,7 +41,7 @@ public class CliBookServiceImpl implements CliBookService {
 
     @Override
     @Transactional
-    public Optional<Long> create(String title, String description, BigDecimal price, long authorId, long genreId) {
+    public Book create(String title, String description, BigDecimal price, long authorId, long genreId) {
         Author author = authorService.findById(authorId).orElseThrow();
 
         Genre genre = genreService.getById(genreId).orElseThrow();
@@ -55,9 +55,7 @@ public class CliBookServiceImpl implements CliBookService {
                 .genre(genre)
                 .build();
 
-        final Book savedBook = bookService.create(book);
-
-        return Optional.of(savedBook.getId());
+        return bookService.create(book);
     }
 
     @Override

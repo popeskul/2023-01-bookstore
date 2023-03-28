@@ -15,6 +15,7 @@ import org.springframework.shell.InputProvider;
 import org.springframework.shell.ResultHandlerService;
 import org.springframework.shell.Shell;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,6 +93,8 @@ class CliBookstoreTest {
         );
 
         when(cliBookService.getAll()).thenReturn(books);
+        when(cliBookService.create("title", "description", BigDecimal.valueOf(100.0), 1L, 1L))
+                .thenReturn(Book.builder().id(3L).build());
 
         long maxId = cliBookService.getAll().stream()
                 .mapToLong(Book::getId)
@@ -111,7 +114,7 @@ class CliBookstoreTest {
         shell.run(inputProvider);
 
         verify(resultHandlerService, times(1)).handle(argumentCaptor.capture());
-        verify(resultHandlerService).handle(any(Optional.class));
+        verify(resultHandlerService).handle(any(Book.class));
     }
 
     @Test

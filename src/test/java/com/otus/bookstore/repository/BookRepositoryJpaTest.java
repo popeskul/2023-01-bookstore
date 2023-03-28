@@ -15,7 +15,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -165,21 +164,5 @@ class BookRepositoryJpaTest {
         Optional<Book> actual = bookRepository.findById(initialBook.getId());
 
         assertThat(actual).isNotPresent();
-    }
-
-    @Test
-    void testGetComments() {
-        List<Comment> comments = Arrays.asList(
-                Comment.builder().id(0L).text("Test Comment 1").book(initialBook).build(),
-                Comment.builder().id(0L).text("Test Comment 2").book(initialBook).build()
-        );
-
-        comments.forEach(commentRepository::save);
-
-        Optional<Book> updatedBook = bookRepository.findById(initialBook.getId());
-
-        assertThat(updatedBook).isPresent();
-        assertThat(updatedBook.get().getComments()).isNotEmpty();
-        assertThat(updatedBook.get().getComments()).hasSize(2);
     }
 }

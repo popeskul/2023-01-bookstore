@@ -7,7 +7,6 @@ import jakarta.persistence.EntityGraph;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.TypedQuery;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
@@ -17,9 +16,8 @@ import java.util.Optional;
 
 @Repository
 public class BookRepositoryJpa implements BookRepository {
-    public static final String ERROR_FIND_ALL_BOOKS = "Books cannot be found";
-    public static final String ERROR_FIND_BOOK_BY_ID = "Book cannot be found by id %s";
-    public static final String ERROR_DELETE_BOOK = "Book cannot be deleted %s";
+    private static final String ERROR_FIND_BOOK_BY_ID = "Error find book by id: %s";
+    private static final String ERROR_FIND_ALL_BOOKS = "Error find all books";
 
     private final EntityManager entityManager;
 
@@ -76,22 +74,14 @@ public class BookRepositoryJpa implements BookRepository {
     }
 
     private Optional<Book> update(Book book) {
-        try {
-            return Optional.of(entityManager.merge(book));
-        } catch (Exception e) {
-            throw new EntitySaveException(book, e);
-        }
+        return Optional.of(entityManager.merge(book));
     }
 
     @Override
     public void deleteById(long id) {
-        try {
-            Book book = entityManager.find(Book.class, id);
-            if (book != null) {
-                entityManager.remove(book);
-            }
-        } catch (DataAccessException e) {
-            throw new RuntimeException(String.format(ERROR_DELETE_BOOK, id), e);
+        Book book = entityManager.find(Book.class, id);
+        if (book != null) {
+            entityManager.remove(book);
         }
     }
 }

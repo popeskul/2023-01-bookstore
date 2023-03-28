@@ -29,7 +29,7 @@ public class CliBookstore {
     }
 
     @ShellMethod(value = "Create book", key = {"book create"})
-    public Optional<Long> createBook(
+    public Book createBook(
             @ShellOption(defaultValue = "title") String title,
             @ShellOption(defaultValue = "description") String description,
             @ShellOption(defaultValue = "price") String price,

@@ -51,13 +51,12 @@ public class CliBookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, genreId, authorId);
 
         // Assert
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        assertThat(book).isNotNull();
 
-        Optional<Book> actual = cliBookService.getById(id.get());
+        Optional<Book> actual = cliBookService.getById(book.getId());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -123,13 +122,12 @@ public class CliBookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, genreId, authorId);
 
         // Assert
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        assertThat(book).isNotNull();
 
-        Optional<Book> actual = cliBookService.getById(id.get());
+        Optional<Book> actual = cliBookService.getById(book.getId());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -156,13 +154,12 @@ public class CliBookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, genreId, authorId);
 
         // Assert
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        assertThat(book).isNotNull();
 
-        Optional<Book> actual = cliBookService.getById(id.get());
+        Optional<Book> actual = cliBookService.getById(book.getId());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -171,10 +168,10 @@ public class CliBookServiceImplTest {
         assertThat(actual.get().getAuthor().getId()).isEqualTo(authorId);
 
         // Act
-        cliBookService.update(id.get(), title2, description2, price, genreId, authorId);
+        cliBookService.update(book.getId(), title2, description2, price, genreId, authorId);
 
         // Assert
-        Optional<Book> actual2 = cliBookService.getById(id.get());
+        Optional<Book> actual2 = cliBookService.getById(book.getId());
         assertThat(actual2).isPresent();
         assertThat(actual2.get().getTitle()).isEqualTo(title2);
         assertThat(actual2.get().getDescription()).isEqualTo(description2);
@@ -209,13 +206,12 @@ public class CliBookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, genreId, authorId);
 
         // Assert
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        assertThat(book).isNotNull();
 
-        Optional<Book> actual = cliBookService.getById(id.get());
+        Optional<Book> actual = cliBookService.getById(book.getId());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -224,7 +220,7 @@ public class CliBookServiceImplTest {
         assertThat(actual.get().getAuthor().getId()).isEqualTo(authorId);
 
         // bad request
-        assertThatThrownBy(() -> cliBookService.update(id.get(), null, null, null, genreId, authorId))
+        assertThatThrownBy(() -> cliBookService.update(book.getId(), null, null, null, genreId, authorId))
                 .isInstanceOf(DataIntegrityViolationException.class);
     }
 
@@ -239,13 +235,12 @@ public class CliBookServiceImplTest {
         assertThat(authorId).isPositive();
 
         // Act
-        Optional<Long> id = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, genreId, authorId);
 
         // Assert
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        assertThat(book).isNotNull();
 
-        Optional<Book> actual = cliBookService.getById(id.get());
+        Optional<Book> actual = cliBookService.getById(book.getId());
         assertThat(actual).isPresent();
         assertThat(actual.get().getTitle()).isEqualTo(title);
         assertThat(actual.get().getDescription()).isEqualTo(description);
@@ -254,10 +249,10 @@ public class CliBookServiceImplTest {
         assertThat(actual.get().getAuthor().getId()).isEqualTo(authorId);
 
         // Act
-        cliBookService.deleteById(id.get());
+        cliBookService.deleteById(book.getId());
 
         // Assert
-        Optional<Book> actual2 = cliBookService.getById(id.get());
+        Optional<Book> actual2 = cliBookService.getById(book.getId());
         assertThat(actual2).isEmpty();
     }
 }

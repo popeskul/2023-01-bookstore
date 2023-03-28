@@ -61,6 +61,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Book> findById(long id) {
         if (id <= 0) {
             throw new InvalidParameterException(String.format(ERROR_FIELD_MUST_BE_GREATER_THAN_ZERO, id));
@@ -70,6 +71,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Book> findAll() {
         return bookRepository.findAll();
     }

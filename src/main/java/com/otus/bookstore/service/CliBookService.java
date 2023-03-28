@@ -11,7 +11,7 @@ public interface CliBookService {
 
     Optional<Book> getById(long id);
 
-    Optional<Long> create(String title, String description, BigDecimal price, long authorId, long genreId);
+    Book create(String title, String description, BigDecimal price, long authorId, long genreId);
 
     Book update(long id, String title, String description, BigDecimal price, long authorId, long genreId);
 
