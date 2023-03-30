@@ -45,6 +45,21 @@ public class AuthorRepositoryJpa implements AuthorRepository {
         }
     }
 
+    @Override
+    public boolean deleteById(long id) {
+        try {
+            Author author = entityManager.find(Author.class, id);
+            if (author != null) {
+                entityManager.remove(author);
+                return true;
+            }
+
+            return false;
+        } catch (DataAccessException e) {
+            throw new RuntimeException(String.format(ERROR_DELETE_AUTHOR, id), e);
+        }
+    }
+
     private Author create(Author author) {
         try {
             entityManager.persist(author);
@@ -59,21 +74,6 @@ public class AuthorRepositoryJpa implements AuthorRepository {
             return entityManager.merge(author);
         } catch (Exception e) {
             throw new EntitySaveException(author, e);
-        }
-    }
-
-    @Override
-    public boolean deleteById(long id) {
-        try {
-            Author author = entityManager.find(Author.class, id);
-            if (author != null) {
-                entityManager.remove(author);
-                return true;
-            }
-
-            return false;
-        } catch (DataAccessException e) {
-            throw new RuntimeException(String.format(ERROR_DELETE_AUTHOR, id), e);
         }
     }
 }

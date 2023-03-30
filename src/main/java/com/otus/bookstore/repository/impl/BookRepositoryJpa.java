@@ -53,6 +53,14 @@ public class BookRepositoryJpa implements BookRepository {
         }
     }
 
+    @Override
+    public void deleteById(long id) {
+        Book book = entityManager.find(Book.class, id);
+        if (book != null) {
+            entityManager.remove(book);
+        }
+    }
+
     private Optional<Book> create(Book book) {
         try {
             entityManager.persist(book);
@@ -64,13 +72,5 @@ public class BookRepositoryJpa implements BookRepository {
 
     private Optional<Book> update(Book book) {
         return Optional.of(entityManager.merge(book));
-    }
-
-    @Override
-    public void deleteById(long id) {
-        Book book = entityManager.find(Book.class, id);
-        if (book != null) {
-            entityManager.remove(book);
-        }
     }
 }

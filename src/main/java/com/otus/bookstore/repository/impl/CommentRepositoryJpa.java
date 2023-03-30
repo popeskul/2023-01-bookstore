@@ -38,23 +38,6 @@ public class CommentRepositoryJpa implements CommentRepository {
         }
     }
 
-    private Optional<Comment> create(Comment comment) {
-        try {
-            entityManager.persist(comment);
-            return Optional.of(comment);
-        } catch (Exception e) {
-            throw new EntitySaveException(comment, e);
-        }
-    }
-
-    private Optional<Comment> update(Comment comment) {
-        try {
-            return Optional.of(entityManager.merge(comment));
-        } catch (Exception e) {
-            throw new EntitySaveException(comment, e);
-        }
-    }
-
     @Override
     public List<Comment> findAll() {
         try {
@@ -87,6 +70,23 @@ public class CommentRepositoryJpa implements CommentRepository {
             }
         } catch (DataAccessException e) {
             throw new RuntimeException(String.format(ERROR_DELETE_COMMENT, id), e);
+        }
+    }
+
+    private Optional<Comment> create(Comment comment) {
+        try {
+            entityManager.persist(comment);
+            return Optional.of(comment);
+        } catch (Exception e) {
+            throw new EntitySaveException(comment, e);
+        }
+    }
+
+    private Optional<Comment> update(Comment comment) {
+        try {
+            return Optional.of(entityManager.merge(comment));
+        } catch (Exception e) {
+            throw new EntitySaveException(comment, e);
         }
     }
 }
