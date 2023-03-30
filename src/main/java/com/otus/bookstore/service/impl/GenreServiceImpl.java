@@ -6,7 +6,6 @@ import com.otus.bookstore.service.GenreService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
@@ -42,7 +41,7 @@ public class GenreServiceImpl implements GenreService {
     @Override
     public Optional<Genre> getById(long id) {
         if (id == 0) {
-            throw new InvalidParameterException(ERROR_ILLEGAL_ARGUMENT);
+            throw new IllegalArgumentException(ERROR_ILLEGAL_ARGUMENT);
         }
 
         return genreRepository.findById(id);

@@ -7,7 +7,6 @@ import com.otus.bookstore.service.BookService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,11 +28,11 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public Book create(Book book) {
         if (book == null) {
-            throw new InvalidParameterException(ERROR_NOT_NULL_BOOK);
+            throw new IllegalArgumentException(ERROR_NOT_NULL_BOOK);
         }
 
         if (book.getId() > 0) {
-            throw new InvalidParameterException(String.format(ERROR_FIELD_MUST_BE_GREATER_THAN_ZERO, book.getId()));
+            throw new IllegalArgumentException(String.format(ERROR_FIELD_MUST_BE_GREATER_THAN_ZERO, book.getId()));
         }
 
         return bookRepository.save(book).orElseThrow();
@@ -43,17 +42,17 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public Book update(Book book) {
         if (book == null) {
-            throw new InvalidParameterException(ERROR_NOT_NULL_BOOK);
+            throw new IllegalArgumentException(ERROR_NOT_NULL_BOOK);
         }
 
         if (book.getId() <= 0) {
-            throw new InvalidParameterException(String.format(ERROR_FIELD_MUST_BE_GREATER_THAN_ZERO, book.getId()));
+            throw new IllegalArgumentException(String.format(ERROR_FIELD_MUST_BE_GREATER_THAN_ZERO, book.getId()));
         }
 
         Optional<Book> bookFromDb = bookRepository.findById(book.getId());
 
         if (bookFromDb.isEmpty()) {
-            throw new InvalidParameterException(String.format(ERROR_BOOK_NOT_FOUND, book.getId()));
+            throw new IllegalArgumentException(String.format(ERROR_BOOK_NOT_FOUND, book.getId()));
         }
 
         return bookRepository.save(book)
@@ -63,7 +62,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public Optional<Book> findById(long id) {
         if (id <= 0) {
-            throw new InvalidParameterException(String.format(ERROR_FIELD_MUST_BE_GREATER_THAN_ZERO, id));
+            throw new IllegalArgumentException(String.format(ERROR_FIELD_MUST_BE_GREATER_THAN_ZERO, id));
         }
 
         return bookRepository.findById(id);
@@ -78,7 +77,7 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public void deleteById(long id) {
         if (id <= 0) {
-            throw new InvalidParameterException(String.format(ERROR_FIELD_MUST_BE_GREATER_THAN_ZERO, id));
+            throw new IllegalArgumentException(String.format(ERROR_FIELD_MUST_BE_GREATER_THAN_ZERO, id));
         }
 
         bookRepository.deleteById(id);

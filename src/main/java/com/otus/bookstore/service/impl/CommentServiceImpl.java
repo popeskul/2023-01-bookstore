@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,7 +66,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Optional<Comment> findById(Long id) {
         if (id <= 0) {
-            throw new InvalidParameterException(String.format(ERROR_NOT_FOUND_AUTHOR, id));
+            throw new IllegalArgumentException(String.format(ERROR_NOT_FOUND_AUTHOR, id));
         }
 
         return commentRepository.findById(id);
@@ -77,14 +76,11 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public void deleteById(Long id) {
         if (id <= 0) {
-            throw new InvalidParameterException(String.format(ERROR_NOT_FOUND_AUTHOR, id));
+            throw new IllegalArgumentException(String.format(ERROR_NOT_FOUND_AUTHOR, id));
         }
 
-        Optional<Comment> findComment = commentRepository.findById(id);
-
-        if (findComment.isEmpty()) {
-            throw new EntityNotFoundException(String.format(ERROR_NOT_FOUND_AUTHOR, id));
-        }
+        commentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(ERROR_NOT_FOUND_AUTHOR, id)));
 
         commentRepository.deleteById(id);
     }

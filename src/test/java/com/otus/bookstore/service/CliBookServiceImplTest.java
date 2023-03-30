@@ -15,7 +15,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,7 +106,7 @@ public class CliBookServiceImplTest {
 
         // bad genre id
         assertThatThrownBy(() -> cliBookService.create(title, description, price, authorId, 0))
-                .isInstanceOf(InvalidParameterException.class)
+                .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(GenreServiceImpl.ERROR_ILLEGAL_ARGUMENT);
     }
 
@@ -192,7 +191,7 @@ public class CliBookServiceImplTest {
 
         // Can't update book with id = 0
         assertThatThrownBy(() -> cliBookService.update(0, title2, description2, price, authorId, genreId))
-                .isInstanceOf(InvalidParameterException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

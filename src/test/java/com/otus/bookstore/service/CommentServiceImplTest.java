@@ -15,7 +15,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Optional;
 
@@ -101,7 +100,7 @@ public class CommentServiceImplTest {
 
     @Test
     void shouldThrowExceptionWhenDeleteCommentById() {
-        doThrow(new InvalidParameterException()).when(commentRepository).deleteById(ID);
+        doThrow(new IllegalArgumentException()).when(commentRepository).deleteById(ID);
 
         assertThatThrownBy(() -> commentService.deleteById(ID))
                 .isInstanceOf(EntityNotFoundException.class)
