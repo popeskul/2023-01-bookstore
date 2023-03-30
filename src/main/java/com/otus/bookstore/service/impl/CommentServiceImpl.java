@@ -1,7 +1,6 @@
 package com.otus.bookstore.service.impl;
 
 import com.otus.bookstore.exception.EntitySaveException;
-import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.repository.BookRepository;
 import com.otus.bookstore.repository.CommentRepository;
@@ -92,12 +91,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> findByBookId(Long bookId) {
-        Optional<Book> bookOptional = bookRepository.findById(bookId);
-
-        if (bookOptional.isEmpty()) {
-            throw new EntityNotFoundException(String.format(ERROR_NOT_FOUND_BOOK, bookId));
-        }
-
-        return bookOptional.get().getComments();
+        return bookRepository.findById(bookId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format(ERROR_NOT_FOUND_BOOK, bookId)))
+                .getComments();
     }
 }
