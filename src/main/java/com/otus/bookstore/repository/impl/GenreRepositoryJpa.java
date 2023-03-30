@@ -51,6 +51,18 @@ public class GenreRepositoryJpa implements GenreRepository {
         }
     }
 
+    @Override
+    public void deleteById(long id) {
+        try {
+            Genre genre = entityManager.find(Genre.class, id);
+            if (genre != null) {
+                entityManager.remove(genre);
+            }
+        } catch (DataAccessException e) {
+            throw new EntityNotFoundException(String.format(ERROR_GENRE_NOT_FOUND, id));
+        }
+    }
+
     private Optional<Genre> create(Genre genre) {
         try {
             entityManager.persist(genre);
@@ -65,18 +77,6 @@ public class GenreRepositoryJpa implements GenreRepository {
             return Optional.of(entityManager.merge(genre));
         } catch (Exception e) {
             throw new EntitySaveException(genre, e);
-        }
-    }
-
-    @Override
-    public void deleteById(long id) {
-        try {
-            Genre genre = entityManager.find(Genre.class, id);
-            if (genre != null) {
-                entityManager.remove(genre);
-            }
-        } catch (DataAccessException e) {
-            throw new EntityNotFoundException(String.format(ERROR_GENRE_NOT_FOUND, id));
         }
     }
 }
