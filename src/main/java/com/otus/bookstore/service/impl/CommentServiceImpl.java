@@ -5,7 +5,6 @@ import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.repository.BookRepository;
 import com.otus.bookstore.repository.CommentRepository;
 import com.otus.bookstore.service.CommentService;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -79,16 +78,14 @@ public class CommentServiceImpl implements CommentService {
             throw new IllegalArgumentException(String.format(ERROR_NOT_FOUND_AUTHOR, id));
         }
 
-        commentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(ERROR_NOT_FOUND_AUTHOR, id)));
+        commentRepository.findById(id).orElseThrow();
 
         commentRepository.deleteById(id);
     }
 
     @Override
     public List<Comment> findByBookId(Long bookId) {
-        return bookRepository.findById(bookId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format(ERROR_NOT_FOUND_BOOK, bookId)))
+        return bookRepository.findById(bookId).orElseThrow()
                 .getComments();
     }
 }

@@ -1,12 +1,14 @@
 package com.otus.bookstore.service;
 
 import com.otus.bookstore.exception.EntitySaveException;
-import com.otus.bookstore.model.*;
+import com.otus.bookstore.model.Author;
+import com.otus.bookstore.model.Book;
+import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.repository.BookRepository;
 import com.otus.bookstore.repository.CommentRepository;
 import com.otus.bookstore.repository.impl.CommentRepositoryJpa;
 import com.otus.bookstore.service.impl.CommentServiceImpl;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.NoResultException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -100,11 +102,11 @@ public class CommentServiceImplTest {
 
     @Test
     void shouldThrowExceptionWhenDeleteCommentById() {
-        doThrow(new IllegalArgumentException()).when(commentRepository).deleteById(ID);
+        when(commentRepository.findById(ID)).thenReturn(Optional.of(comment));
+        doThrow(new NoResultException()).when(commentRepository).deleteById(ID);
 
         assertThatThrownBy(() -> commentService.deleteById(ID))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining(String.format(CommentServiceImpl.ERROR_NOT_FOUND_AUTHOR, ID));
+                .isInstanceOf(NoResultException.class);
     }
 
     @Test
