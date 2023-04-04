@@ -17,13 +17,13 @@ public final class Genre {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private final int id;
+    private final Long id;
 
     @Column(name = "name", nullable = false)
     private final String name;
 
     public Genre() {
-        this.id = 0;
+        this.id = 0L;
         this.name = "";
     }
 

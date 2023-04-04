@@ -14,9 +14,9 @@ import java.util.Objects;
 @AllArgsConstructor
 public final class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private final int id;
+    private final Long id;
 
     @Column(name = "name", nullable = false)
     private final String name;
@@ -25,7 +25,7 @@ public final class Author {
     private final String email;
 
     public Author() {
-        this.id = 0;
+        this.id = 0L;
         this.name = "";
         this.email = "";
     }

@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2023-03-17--0004-comment-insert
+      author: ppopeskul
+      changes:
+        - insert:
+            tableName: comment
+            columns:
+              - column:
+                  name: book_id
+                  valueNumeric: 1
+              - column:
+                  name: text
+                  value: "This is a test comment."
+              - column:
+                  name: created_at
+                  value: "2023-03-17 12:00:00"
+        - insert:
+            tableName: comment
+            columns:
+              - column:
+                  name: book_id
+                  value: 1
+              - column:
+                  name: text
+                  value: "Another test comment."
+              - column:
+                  name: created_at
+                  value: "2023-03-17 12:01:00"

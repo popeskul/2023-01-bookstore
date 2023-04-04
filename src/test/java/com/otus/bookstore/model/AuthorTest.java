@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @DataJpaTest
 class AuthorTest {
-    private final int id = 1;
-    private final int id3 = 3;
+    private final long id = 1;
+    private final long id3 = 3;
     private final String name = "John Doe";
     private final String name2 = "Jane Smith";
     private final String email = "john.doe@example.com";

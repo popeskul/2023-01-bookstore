@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @DataJpaTest
 class BookTest {
-    private final int id = 1;
-    private final int id2 = 2;
+    private final long id = 1;
+    private final long id2 = 2;
     private final int price = 100;
     private final String title = "Book 1";
     private final String description = "Description 1";
