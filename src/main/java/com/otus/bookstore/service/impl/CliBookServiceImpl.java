@@ -17,6 +17,8 @@ import java.util.Optional;
 @Service
 public class CliBookServiceImpl implements CliBookService {
 
+    public static final String ERROR_ID_MUST_BE_GREATER_THAN_0 = "Id must be greater than 0";
+
     private final BookService bookService;
     private final AuthorService authorService;
     private final GenreService genreService;
@@ -53,12 +55,16 @@ public class CliBookServiceImpl implements CliBookService {
                 .genre(genre)
                 .build();
 
-        return bookService.create(book);
+        return bookService.save(book);
     }
 
     @Override
     @Transactional
     public Book update(long id, String title, String description, BigDecimal price, long authorId, long genreId) {
+        if (id == 0) {
+            throw new IllegalArgumentException(ERROR_ID_MUST_BE_GREATER_THAN_0);
+        }
+
         Author author = authorService.findById(authorId).orElseThrow();
 
         Genre genre = genreService.getById(genreId).orElseThrow();
@@ -72,7 +78,7 @@ public class CliBookServiceImpl implements CliBookService {
                 .genre(genre)
                 .build();
 
-        return bookService.update(book);
+        return bookService.save(book);
     }
 
     @Override

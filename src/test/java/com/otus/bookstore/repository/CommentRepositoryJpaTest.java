@@ -2,14 +2,12 @@ package com.otus.bookstore.repository;
 
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
-import com.otus.bookstore.repository.impl.BookRepositoryJpa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Arrays;
@@ -21,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 
 @DataJpaTest
-@Import({BookRepositoryJpa.class})
 public class CommentRepositoryJpaTest {
     @Autowired
     private CommentRepository commentRepository;
@@ -42,7 +39,7 @@ public class CommentRepositoryJpaTest {
 
     @BeforeEach
     void setUp() {
-        book = bookRepository.findById(1).orElseThrow();
+        book = bookRepository.findById(1L).orElseThrow();
 
         comment = Comment.builder()
                 .id(0L)

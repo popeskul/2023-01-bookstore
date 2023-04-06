@@ -17,8 +17,6 @@ import java.util.Optional;
 public class GenreServiceImpl implements GenreService {
     private static final Logger LOGGER = LogManager.getLogger(GenreServiceImpl.class);
 
-    public static final String ERROR_SAVING_GENRE = "Error saving genre %s";
-
     private final GenreRepository genreRepository;
 
     public GenreServiceImpl(GenreRepository genreRepository) {
@@ -32,7 +30,7 @@ public class GenreServiceImpl implements GenreService {
             return genreRepository.save(genre);
         } catch (DataAccessException e) {
             LOGGER.error("Error saving genre {}", genre, e);
-            throw new EntitySaveException(String.format(ERROR_SAVING_GENRE, genre));
+            throw new EntitySaveException(genre, e);
         }
     }
 

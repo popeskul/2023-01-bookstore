@@ -51,7 +51,7 @@ public class CliBookstore {
         try {
             return cliBookService.update(Long.parseLong(id), title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

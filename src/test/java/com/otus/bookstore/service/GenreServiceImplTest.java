@@ -45,7 +45,7 @@ public class GenreServiceImplTest {
 
         assertThatThrownBy(() -> genreService.save(genre))
                 .isInstanceOf(EntitySaveException.class)
-                .hasMessageContaining(String.format(GenreServiceImpl.ERROR_SAVING_GENRE, genre));
+                .hasMessageContaining(genre.toString());
     }
 
     @Test
