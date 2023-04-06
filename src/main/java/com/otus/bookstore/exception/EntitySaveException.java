@@ -2,6 +2,7 @@ package com.otus.bookstore.exception;
 
 public class EntitySaveException extends RuntimeException {
     private final Object entity;
+    public final static String ERROR_SAVING_ENTITY = "Error saving entity %s";
 
     public EntitySaveException(Object entity) {
         this.entity = entity;
@@ -14,6 +15,6 @@ public class EntitySaveException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return String.format("Failed to save entity: %s", entity.toString());
+        return String.format(ERROR_SAVING_ENTITY, entity.toString());
     }
 }
