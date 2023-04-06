@@ -12,7 +12,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,7 +57,7 @@ class AuthorServiceImplTest {
         when(authorRepository.save(author)).thenReturn(author);
 
         // Act
-        Author createdAuthor = authorService.create(author);
+        Author createdAuthor = authorService.save(author);
 
         // Assert
         assertThat(createdAuthor).isNotNull();
@@ -78,37 +77,21 @@ class AuthorServiceImplTest {
         when(authorRepository.save(author)).thenThrow(EntitySaveException.class);
 
         // Act
-        assertThrows(DataIntegrityViolationException.class, () -> authorService.create(author));
+        assertThrows(EntitySaveException.class, () -> authorService.save(author));
     }
 
     @Test
     @DisplayName("Should not create when author is null")
     void shouldNotCreateWhenAuthorNull() {
         Author author = null;
-        when(authorRepository.save(author)).thenThrow(new IllegalArgumentException(AuthorServiceImpl.ERROR_AUTHOR_NULL));
-
-        // Act
-        assertThrows(IllegalArgumentException.class, () -> authorService.create(author));
-
-        // Assert
-        assertThatThrownBy(() -> authorService.create(author))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage(AuthorServiceImpl.ERROR_AUTHOR_NULL);
-    }
-
-    @Test
-    @DisplayName("Should not create when id is 0")
-    void shouldNotCreateWhenIdIsZero() {
-        Author author = unsavedValidAuthor.toBuilder().id(1L).build();
         when(authorRepository.save(author)).thenThrow(new EntitySaveException(author));
 
         // Act
-        assertThrows(EntitySaveException.class, () -> authorService.create(author));
+        assertThrows(EntitySaveException.class, () -> authorService.save(author));
 
         // Assert
-        assertThatThrownBy(() -> authorService.create(author))
-                .isInstanceOf(EntitySaveException.class)
-                .hasMessage(new EntitySaveException(AuthorServiceImpl.ERROR_AUTHOR_ALREADY_EXISTS).getMessage());
+        assertThatThrownBy(() -> authorService.save(author))
+                .isInstanceOf(EntitySaveException.class);
     }
 
     @Test
@@ -126,13 +109,13 @@ class AuthorServiceImplTest {
     void shouldGetAllAuthors() {
         // Arrange
         Author author1 = unsavedValidAuthor.toBuilder().build();
-        Author createAuthor1 = authorService.create(author1);
+        Author createAuthor1 = authorService.save(author1);
 
         assertThat(createAuthor1).isNotNull();
         assertThat(createAuthor1.getId()).isPositive();
 
         Author author2 = unsavedValidAuthor.toBuilder().name(name2).email(email2).build();
-        Author createAuthor2 = authorService.create(author2);
+        Author createAuthor2 = authorService.save(author2);
 
         assertThat(createAuthor2).isNotNull();
         assertThat(createAuthor2.getId()).isPositive();
@@ -161,7 +144,7 @@ class AuthorServiceImplTest {
     @Test
     void shouldUpdateAuthor() {
         Author newAuthor = unsavedValidAuthor.toBuilder().build();
-        Author createdAuthor = authorService.create(newAuthor);
+        Author createdAuthor = authorService.save(newAuthor);
 
         assertThat(createdAuthor).isNotNull();
         assertThat(createdAuthor.getId()).isPositive();
@@ -173,7 +156,7 @@ class AuthorServiceImplTest {
                 .build();
 
         // Act
-        authorService.update(dirtyAuthor);
+        Author updatedAuthor = authorService.save(dirtyAuthor);
 
         // Assert
         Optional<Author> actual = authorService.findById(createdAuthor.getId());
@@ -190,10 +173,10 @@ class AuthorServiceImplTest {
         Author earlyCreatedAuthor = existedAuthor.toBuilder().build();
         Author wrongAuthorForUpdate = earlyCreatedAuthor.toBuilder().name(null).email(null).build();
 
-        assertThrows(Exception.class, () -> authorService.update(wrongAuthorForUpdate));
+        assertThrows(Exception.class, () -> authorService.save(wrongAuthorForUpdate));
 
         // Assert
-        assertThatThrownBy(() -> authorService.update(wrongAuthorForUpdate))
+        assertThatThrownBy(() -> authorService.save(wrongAuthorForUpdate))
                 .isInstanceOf(Exception.class);
     }
 
@@ -203,7 +186,7 @@ class AuthorServiceImplTest {
         // create author
         Author newAuthor = unsavedValidAuthor.toBuilder().build();
 
-        Author createdAuthor = authorService.create(newAuthor);
+        Author createdAuthor = authorService.save(newAuthor);
 
         assertThat(createdAuthor).isNotNull();
         assertThat(createdAuthor.getId()).isPositive();
