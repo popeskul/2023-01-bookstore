@@ -5,7 +5,6 @@ import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.repository.impl.BookRepositoryJpa;
-import com.otus.bookstore.repository.impl.CommentRepositoryJpa;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({BookRepositoryJpa.class, CommentRepositoryJpa.class})
+@Import({BookRepositoryJpa.class})
 class BookRepositoryJpaTest {
     private static final String title = "Book1";
     private static final String title2 = "Book2";
