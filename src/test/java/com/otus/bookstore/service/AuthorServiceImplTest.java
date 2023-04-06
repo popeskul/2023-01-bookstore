@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -77,11 +78,7 @@ class AuthorServiceImplTest {
         when(authorRepository.save(author)).thenThrow(EntitySaveException.class);
 
         // Act
-        assertThrows(EntitySaveException.class, () -> authorService.create(author));
-
-        // Assert
-        assertThatThrownBy(() -> authorService.create(author))
-                .isInstanceOf(EntitySaveException.class);
+        assertThrows(DataIntegrityViolationException.class, () -> authorService.create(author));
     }
 
     @Test
@@ -134,7 +131,7 @@ class AuthorServiceImplTest {
         assertThat(createAuthor1).isNotNull();
         assertThat(createAuthor1.getId()).isPositive();
 
-        Author author2 = unsavedValidAuthor.toBuilder().build();
+        Author author2 = unsavedValidAuthor.toBuilder().name(name2).email(email2).build();
         Author createAuthor2 = authorService.create(author2);
 
         assertThat(createAuthor2).isNotNull();
@@ -145,8 +142,20 @@ class AuthorServiceImplTest {
 
         // Assert
         assertThat(authors).isNotNull();
-        assertThat(authors).contains(author1);
-        assertThat(authors).contains(author2);
+
+        // find by name and email
+        Optional<Author> actual1 = authors.stream()
+                .filter(a -> a.getName().equals(name) && a.getEmail().equals(email))
+                .findFirst();
+
+        assertThat(actual1).isPresent();
+
+        // find by name and email
+        Optional<Author> actual2 = authors.stream()
+                .filter(a -> a.getName().equals(name2) && a.getEmail().equals(email2))
+                .findFirst();
+
+        assertThat(actual2).isPresent();
     }
 
     @Test
@@ -158,6 +167,7 @@ class AuthorServiceImplTest {
         assertThat(createdAuthor.getId()).isPositive();
 
         Author dirtyAuthor = newAuthor.toBuilder()
+                .id(createdAuthor.getId())
                 .name(name2)
                 .email(email2)
                 .build();
