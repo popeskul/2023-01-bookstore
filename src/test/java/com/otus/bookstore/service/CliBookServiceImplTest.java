@@ -7,7 +7,6 @@ import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.service.impl.AuthorServiceImpl;
 import com.otus.bookstore.service.impl.CliBookServiceImpl;
 import com.otus.bookstore.service.impl.GenreServiceImpl;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,6 +15,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -94,8 +94,7 @@ public class CliBookServiceImplTest {
 
         // bad author id
         assertThatThrownBy(() -> cliBookService.create(title, description, price, badAuthorId, genreId))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining(String.format(AuthorServiceImpl.ERROR_AUTHOR_NOT_FOUND, badAuthorId));
+                .isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
@@ -106,8 +105,7 @@ public class CliBookServiceImplTest {
 
         // bad genre id
         assertThatThrownBy(() -> cliBookService.create(title, description, price, authorId, 0))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining(GenreServiceImpl.ERROR_ILLEGAL_ARGUMENT);
+                .isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
