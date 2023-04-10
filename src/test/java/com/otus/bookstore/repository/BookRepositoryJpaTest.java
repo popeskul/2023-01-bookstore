@@ -4,15 +4,12 @@ import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.model.Genre;
-import com.otus.bookstore.repository.impl.BookRepositoryJpa;
-import com.otus.bookstore.repository.impl.CommentRepositoryJpa;
 import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,7 +18,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import({BookRepositoryJpa.class, CommentRepositoryJpa.class})
 class BookRepositoryJpaTest {
     private static final String title = "Book1";
     private static final String title2 = "Book2";
@@ -52,7 +48,7 @@ class BookRepositoryJpaTest {
     @Test
     void shouldSaveBook() {
         Book book = Book.builder()
-                .id(0L)
+                .id(100L)
                 .title(title)
                 .description(description)
                 .price(price)
@@ -60,12 +56,18 @@ class BookRepositoryJpaTest {
                 .genre(initialGenre)
                 .build();
 
-        bookRepository.save(book);
+        Book createdBook = bookRepository.save(book);
 
-        Book actual = entityManager.find(Book.class, book.getId());
+        assertThat(createdBook).isNotNull();
+        assertThat(createdBook.getTitle()).isEqualTo(title);
+        assertThat(createdBook.getDescription()).isEqualTo(description);
+        assertThat(createdBook.getId()).isGreaterThan(0);
+
+        Book actual = entityManager.find(Book.class, createdBook.getId());
 
         assertThat(actual).isNotNull();
         assertThat(actual.getTitle()).isEqualTo(title);
+        assertThat(actual.getDescription()).isEqualTo(description);
         assertThat(actual.getId()).isGreaterThan(0);
 
         assertThat(actual.getAuthor()).isNotNull();
@@ -82,14 +84,14 @@ class BookRepositoryJpaTest {
         sessionFactory.getStatistics().clear();
         sessionFactory.getStatistics().setStatisticsEnabled(true);
 
-        Book updatedBook = initialBook.toBuilder()
+        Book bookForUpdate = initialBook.toBuilder()
                 .title(title2)
                 .description(description2)
                 .build();
 
-        bookRepository.save(updatedBook).orElseThrow();
+        Book updatedBook = bookRepository.save(bookForUpdate);
 
-        Book updatedActual = entityManager.find(Book.class, updatedBook.getId());
+        Book updatedActual = entityManager.find(Book.class, bookForUpdate.getId());
 
         assertThat(updatedActual).isNotNull();
         assertThat(updatedActual.getTitle()).isEqualTo(title2);

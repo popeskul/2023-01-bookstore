@@ -1,17 +1,14 @@
 package com.otus.bookstore.repository;
 
-import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
-import com.otus.bookstore.repository.impl.BookRepositoryJpa;
-import com.otus.bookstore.repository.impl.CommentRepositoryJpa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 
 @DataJpaTest
-@Import({CommentRepositoryJpa.class, BookRepositoryJpa.class})
 public class CommentRepositoryJpaTest {
     @Autowired
     private CommentRepository commentRepository;
@@ -43,7 +39,7 @@ public class CommentRepositoryJpaTest {
 
     @BeforeEach
     void setUp() {
-        book = bookRepository.findById(1).orElseThrow();
+        book = bookRepository.findById(1L).orElseThrow();
 
         comment = Comment.builder()
                 .id(0L)
@@ -56,36 +52,33 @@ public class CommentRepositoryJpaTest {
     public void shouldSaveComment() {
         Comment newComment = comment.toBuilder().build();
 
-        try {
-            commentRepository.save(newComment);
-        } catch (EntitySaveException e) {
-            assertThatThrownBy(() -> commentRepository.save(newComment))
-                    .isInstanceOf(EntitySaveException.class)
-                    .hasMessageContaining(String.format(CommentRepositoryJpa.ERROR_CREATE_COMMENT, newComment));
-        }
+        Comment savedComment = commentRepository.save(newComment);
 
-        Comment actual = entityManager.find(Comment.class, newComment.getId());
+        assertThat(savedComment).isNotNull();
+        assertThat(savedComment.getId()).isGreaterThan(0);
+        assertThat(savedComment.getText()).isEqualTo(commentText);
+        assertThat(savedComment.getBook()).isEqualTo(book);
 
+        Comment actual = entityManager.find(Comment.class, savedComment.getId());
         assertThat(actual).isNotNull();
+        assertThat(actual.getId()).isEqualTo(savedComment.getId());
         assertThat(actual.getText()).isEqualTo(commentText);
-        assertThat(actual.getId()).isGreaterThan(0);
-        assertThat(actual.getBook()).isEqualTo(newComment.getBook());
+        assertThat(actual.getBook()).isEqualTo(book);
+
+        assertThat(actual).isEqualTo(savedComment);
     }
 
     @Test
     public void shouldThrowCommentErrorSavedExceptionWhenSaveComment() {
-        doThrow(new EntitySaveException(String.format(CommentRepositoryJpa.ERROR_CREATE_COMMENT, comment)))
-                .when(commentRepositoryMock).save(comment);
+        doThrow(DataIntegrityViolationException.class).when(commentRepositoryMock).save(comment);
 
         assertThatThrownBy(() -> commentRepositoryMock.save(comment))
-                .isInstanceOf(EntitySaveException.class)
-                .hasMessageContaining(String.format(CommentRepositoryJpa.ERROR_CREATE_COMMENT, comment));
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
     public void shouldThrowCommentErrorSavedExceptionOnRuntimeException() {
-        doThrow(new EntitySaveException(String.format(CommentRepositoryJpa.ERROR_CREATE_COMMENT, comment)))
-                .when(commentRepositoryMock).save(comment);
+        doThrow(DataIntegrityViolationException.class).when(commentRepositoryMock).save(comment);
 
         assertThatThrownBy(() -> commentRepositoryMock.save(comment))
                 .isInstanceOf(RuntimeException.class);

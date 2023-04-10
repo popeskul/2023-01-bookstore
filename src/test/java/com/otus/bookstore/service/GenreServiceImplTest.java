@@ -1,5 +1,6 @@
 package com.otus.bookstore.service;
 
+import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.service.impl.GenreServiceImpl;
 import org.junit.jupiter.api.Test;
@@ -7,10 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @Import({GenreServiceImpl.class})
@@ -21,40 +22,50 @@ public class GenreServiceImplTest {
     @Autowired
     private GenreService genreService;
 
-    private Genre unsavedValidGenre = Genre.builder().id(0L).name(name).build();
+    private final Genre unsavedValidGenre = Genre.builder().id(0L).name(name).build();
 
     @Test
     void shouldCreateGenre() {
         Genre genre = unsavedValidGenre.toBuilder().build();
 
-        Optional<Long> id = genreService.create(genre);
+        Genre createdGenre = genreService.save(genre);
 
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        assertThat(createdGenre).isNotNull();
+        assertThat(createdGenre.getId()).isPositive();
 
-        Optional<Genre> actual = genreService.getById(id.get());
+        Optional<Genre> actual = genreService.getById(createdGenre.getId());
         assertThat(actual).isPresent();
         assertThat(actual.get().getName()).isEqualTo(name);
+    }
+
+    // should not create genre with empty name
+    @Test
+    void shouldNotCreateGenreWithEmptyName() {
+        Genre genre = unsavedValidGenre.toBuilder().name(null).build();
+
+        assertThatThrownBy(() -> genreService.save(genre))
+                .isInstanceOf(EntitySaveException.class)
+                .hasMessageContaining(genre.toString());
     }
 
     @Test
     void shouldUpdateGenre() {
         Genre genre = unsavedValidGenre.toBuilder().id(1L).build();
-        Optional<Long> id = genreService.create(genre);
+        Genre createdGenre = genreService.save(genre);
 
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        assertThat(createdGenre).isNotNull();
+        assertThat(createdGenre.getId()).isPositive();
 
-        Optional<Genre> savedGenre = genreService.getById(id.get());
+        Optional<Genre> savedGenre = genreService.getById(createdGenre.getId());
 
         assertThat(savedGenre).isPresent();
         assertThat(savedGenre.get().getName()).isEqualTo(name);
 
         Genre updatedGenre = savedGenre.get().toBuilder().name(name2).build();
 
-        genreService.update(updatedGenre);
+        Genre saveUpdatedGenre = genreService.save(updatedGenre);
 
-        Optional<Genre> actual = genreService.getById(id.get());
+        Optional<Genre> actual = genreService.getById(saveUpdatedGenre.getId());
 
         assertThat(actual).isPresent();
         assertThat(actual.get().getName()).isEqualTo(name2);
@@ -63,14 +74,14 @@ public class GenreServiceImplTest {
     @Test
     void shouldDeleteById() {
         Genre genre = unsavedValidGenre.toBuilder().build();
-        Optional<Long> id = genreService.create(genre);
+        Genre createdGenre = genreService.save(genre);
 
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        assertThat(createdGenre).isNotNull();
+        assertThat(createdGenre.getId()).isPositive();
 
-        genreService.deleteById(id.get());
+        genreService.deleteById(createdGenre.getId());
 
-        Optional<Genre> actual = genreService.getById(id.get());
+        Optional<Genre> actual = genreService.getById(createdGenre.getId());
 
         assertThat(actual).isNotPresent();
     }
@@ -78,12 +89,12 @@ public class GenreServiceImplTest {
     @Test
     void shouldGetById() {
         Genre genre = unsavedValidGenre.toBuilder().build();
-        Optional<Long> id = genreService.create(genre);
+        Genre createdGenre = genreService.save(genre);
 
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        assertThat(createdGenre).isNotNull();
+        assertThat(createdGenre.getId()).isPositive();
 
-        Optional<Genre> actual = genreService.getById(id.get());
+        Optional<Genre> actual = genreService.getById(createdGenre.getId());
 
         assertThat(actual).isPresent();
         assertThat(actual.get().getName()).isEqualTo(name);
@@ -91,18 +102,20 @@ public class GenreServiceImplTest {
 
     @Test
     void shouldGetAll() {
-        Genre genre = unsavedValidGenre.toBuilder().build();
-        Optional<Long> id = genreService.create(genre);
+        assertThatThrownBy(() -> assertThat(genreService.getAll()).extracting(Genre::getName).contains(name, name2));
 
-        assertThat(id).isPresent();
-        assertThat(id.get()).isPositive();
+        Genre genre = unsavedValidGenre.toBuilder().build();
+        Genre createdGenre = genreService.save(genre);
+
+        assertThat(createdGenre).isNotNull();
+        assertThat(createdGenre.getId()).isPositive();
 
         Genre genre2 = unsavedValidGenre.toBuilder().name(name2).build();
-        Optional<Long> id2 = genreService.create(genre2);
+        Genre createdGenre2 = genreService.save(genre2);
 
-        assertThat(id2).isPresent();
-        assertThat(id2.get()).isPositive();
+        assertThat(createdGenre2).isNotNull();
+        assertThat(createdGenre2.getId()).isPositive();
 
-        assertThat(genreService.getAll().containsAll(List.of(genre, genre2))).isTrue();
+        assertThat(genreService.getAll()).extracting(Genre::getName).contains(name, name2);
     }
 }

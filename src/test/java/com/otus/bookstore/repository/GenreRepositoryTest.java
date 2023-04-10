@@ -1,19 +1,16 @@
 package com.otus.bookstore.repository;
 
 import com.otus.bookstore.model.Genre;
-import com.otus.bookstore.repository.impl.GenreRepositoryJpa;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-@Import(GenreRepositoryJpa.class)
 public class GenreRepositoryTest {
     private static final String name = "Genre1";
     private static final String name2 = "Genre2";
@@ -72,7 +69,7 @@ public class GenreRepositoryTest {
 
     @Test
     public void shouldFindById() {
-        Genre genre = Genre.builder().name(name).id(0L).build();
+        Genre genre = Genre.builder().name(name).id(1L).build();
 
         genreRepository.save(genre);
 
@@ -86,7 +83,7 @@ public class GenreRepositoryTest {
 
     @Test
     public void shouldNotFindGenreById() {
-        Optional<Genre> actual = genreRepository.findById(-1);
+        Optional<Genre> actual = genreRepository.findById(-1L);
         assertThat(actual).isEmpty();
     }
 

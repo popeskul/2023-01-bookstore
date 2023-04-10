@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CommentService {
-    Comment create(Comment comment);
-
-    Comment update(Comment comment);
+    Comment save(Comment comment);
 
     List<Comment> getAll();
 

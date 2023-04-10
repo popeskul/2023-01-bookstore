@@ -1,13 +1,11 @@
 package com.otus.bookstore.repository;
 
-import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Author;
-import com.otus.bookstore.repository.impl.AuthorRepositoryJpa;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,7 +14,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest
-@Import({AuthorRepositoryJpa.class})
 class AuthorRepositoryTest {
     private static final long ID = 1L;
     private static final String name = "Some Doe";
@@ -55,7 +52,7 @@ class AuthorRepositoryTest {
         Author author = validAuthorWithId.toBuilder().id(0L).email(null).name(null).build();
 
         assertThatThrownBy(() -> authorRepository.save(author))
-                .isInstanceOf(EntitySaveException.class);
+                .isInstanceOf(DataIntegrityViolationException.class);
     }
 
     @Test
@@ -99,13 +96,16 @@ class AuthorRepositoryTest {
     @Test
     public void shouldFindById() {
         Author author = validAuthorWithId.toBuilder().id(0L).build();
-        authorRepository.save(author);
 
-        entityManager.clear();
+        Author savedAuthor = authorRepository.save(author);
+        entityManager.flush();
 
-        Optional<Author> foundAuthor = authorRepository.findById(author.getId());
+        Optional<Author> actual = authorRepository.findById(savedAuthor.getId());
 
-        assertThat(foundAuthor).isPresent().get().isEqualTo(author);
+        assertThat(actual).isPresent();
+        assertThat(actual.get().getName()).isEqualTo(name);
+        assertThat(actual.get().getId()).isGreaterThan(0);
+        assertThat(actual.get().getEmail()).isEqualTo(email);
     }
 
     @Test
@@ -130,14 +130,10 @@ class AuthorRepositoryTest {
         entityManager.flush();
 
         // Act
-        boolean actual = authorRepository.deleteById(author.getId());
-
-        assertThat(actual).isTrue();
+        authorRepository.deleteById(author.getId());
 
         // Assert
-        Optional<Author> deletedAuthor = authorRepository.findById(author.getId());
-
-        assertThat(deletedAuthor).isEmpty();
+        assertThat(entityManager.find(Author.class, author.getId())).isNull();
     }
 
     @Test
@@ -148,9 +144,9 @@ class AuthorRepositoryTest {
         entityManager.getEntityManager().createNativeQuery("DELETE FROM author").executeUpdate();
 
         // Act
-        boolean actual = authorRepository.deleteById(0L);
+        authorRepository.deleteById(0L);
 
         // Assert
-        assertThat(actual).isFalse();
+        assertThat(entityManager.find(Author.class, 0L)).isNull();
     }
 }

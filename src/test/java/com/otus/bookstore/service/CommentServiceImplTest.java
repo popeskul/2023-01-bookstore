@@ -6,7 +6,6 @@ import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.repository.BookRepository;
 import com.otus.bookstore.repository.CommentRepository;
-import com.otus.bookstore.repository.impl.CommentRepositoryJpa;
 import com.otus.bookstore.service.impl.CommentServiceImpl;
 import jakarta.persistence.NoResultException;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,17 +58,17 @@ public class CommentServiceImplTest {
     void shouldCreateComment() {
         when(commentRepository.save(comment)).thenReturn(comment);
 
-        Comment savedComment = commentService.create(comment);
+        Comment savedComment = commentService.save(comment);
         assertThat(savedComment).isEqualTo(comment);
     }
 
     @Test
     void shouldThrowExceptionWhenCreateComment() {
-        when(commentRepository.save(comment)).thenThrow(new EntitySaveException(String.format(CommentRepositoryJpa.ERROR_CREATE_COMMENT, comment)));
+        when(commentRepository.save(comment)).thenThrow(new EntitySaveException(comment));
 
-        assertThatThrownBy(() -> commentService.create(comment))
+        assertThatThrownBy(() -> commentService.save(comment))
                 .isInstanceOf(EntitySaveException.class)
-                .hasMessageContaining(String.format(CommentRepositoryJpa.ERROR_CREATE_COMMENT, comment));
+                .hasMessageContaining(String.format(EntitySaveException.ERROR_SAVING_ENTITY, comment));
     }
 
     @Test
