@@ -5,7 +5,6 @@ import com.otus.bookstore.model.Book;
 import com.otus.bookstore.repository.BookRepository;
 import com.otus.bookstore.service.BookService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,6 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Transactional
     public Book save(Book book) {
         try {
             return bookRepository.save(book);
@@ -40,7 +38,6 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    @Transactional
     public void deleteById(long id) {
         bookRepository.deleteById(id);
     }

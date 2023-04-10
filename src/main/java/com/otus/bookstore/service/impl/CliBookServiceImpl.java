@@ -82,7 +82,6 @@ public class CliBookServiceImpl implements CliBookService {
     }
 
     @Override
-    @Transactional
     public void deleteById(long id) {
         bookService.deleteById(id);
     }
