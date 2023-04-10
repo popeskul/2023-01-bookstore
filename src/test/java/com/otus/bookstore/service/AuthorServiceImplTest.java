@@ -4,7 +4,6 @@ import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.repository.AuthorRepository;
 import com.otus.bookstore.service.impl.AuthorServiceImpl;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -181,7 +180,6 @@ class AuthorServiceImplTest {
     }
 
     @Test
-    @Transactional
     void shouldDeleteAuthorById() {
         // create author
         Author newAuthor = unsavedValidAuthor.toBuilder().build();
