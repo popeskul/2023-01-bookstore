@@ -1,34 +1,31 @@
 package com.otus.bookstore.service.impl;
 
-import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.repository.BookRepository;
 import com.otus.bookstore.service.BookService;
+import com.otus.bookstore.validator.ObjectValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class BookServiceImpl implements BookService {
+public class BookServiceImpl extends EntityServiceImpl<Book> implements BookService {
 
     private final BookRepository bookRepository;
 
-    public BookServiceImpl(BookRepository bookRepository) {
+    public BookServiceImpl(BookRepository bookRepository, ObjectValidator validator) {
+        super(bookRepository, validator);
         this.bookRepository = bookRepository;
     }
 
     @Override
     public Book save(Book book) {
-        try {
-            return bookRepository.save(book);
-        } catch (Exception e) {
-            throw new EntitySaveException(book, e);
-        }
+        return super.save(book);
     }
 
     @Override
-    public Optional<Book> findById(long id) {
+    public Optional<Book> findById(String id) {
         return bookRepository.findById(id);
     }
 
@@ -38,7 +35,7 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public void deleteById(long id) {
+    public void deleteById(String id) {
         bookRepository.deleteById(id);
     }
 }

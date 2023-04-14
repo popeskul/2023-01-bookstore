@@ -1,18 +1,29 @@
 spring:
-  liquibase:
-    enabled: true
-    change-log: classpath:db/changelog/db.changelog-master.yml
-    drop-first: true
   shell:
     interactive:
       enabled: false
     main:
       allow-circular-references: true
-  jpa:
-    generate-ddl: true
-    hibernate:
-      ddl-auto: none
-    properties:
-      hibernate:
-        format_sql: true
-    show-sql: false
+  mongodb:
+    embedded:
+      version: 4.0.2
+  data:
+    mongodb:
+      database: test_bookstore
+      port: 0
+mongock:
+  runner-type: InitializingBean
+  change-logs-scan-package:
+    - com.otus.bookstore.mongock.changelog
+  mongo-db:
+    write-concern:
+      journal: false
+    read-concern: local
+de:
+  flapdoodle:
+    mongodb:
+      embedded:
+        version: 4.0.2
+logging:
+  level:
+    root: ERROR

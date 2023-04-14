@@ -1,20 +1,20 @@
 package com.otus.bookstore.service;
 
+import com.github.cloudyrock.spring.v5.EnableMongock;
 import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.repository.BookRepository;
 import com.otus.bookstore.repository.CommentRepository;
-import com.otus.bookstore.service.impl.CommentServiceImpl;
-import jakarta.persistence.NoResultException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,10 +24,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
-@Import({CommentServiceImpl.class})
+@DataMongoTest
+@EnableMongock
+@ComponentScan({"com.otus.bookstore.repository", "com.otus.bookstore.service", "com.otus.bookstore.validator"})
+@ActiveProfiles("test")
 public class CommentServiceImplTest {
-    private final long ID = 100L;
+    private final String ID = "100";
 
     private Author author;
     private Book book;
@@ -51,7 +53,7 @@ public class CommentServiceImplTest {
 
         book = Book.builder().title("title1").author(author).build();
 
-        comment = Comment.builder().id(0L).book(book).text("text1").build();
+        comment = Comment.builder().book(book).text("text1").build();
     }
 
     @Test
@@ -102,10 +104,10 @@ public class CommentServiceImplTest {
     @Test
     void shouldThrowExceptionWhenDeleteCommentById() {
         when(commentRepository.findById(ID)).thenReturn(Optional.of(comment));
-        doThrow(new NoResultException()).when(commentRepository).deleteById(ID);
+        doThrow(new EntitySaveException(comment)).when(commentRepository).deleteById(ID);
 
         assertThatThrownBy(() -> commentService.deleteById(ID))
-                .isInstanceOf(NoResultException.class);
+                .isInstanceOf(EntitySaveException.class);
     }
 
     @Test
@@ -117,13 +119,13 @@ public class CommentServiceImplTest {
 
     @Test
     void getCommentsByBookIdTest() {
-        long bookId = 1L;
+        String bookId = "1";
 
         Book preBook = Book.builder().id(bookId).build();
 
         List<Comment> commentsByBookId = List.of(
-                Comment.builder().id(1L).book(book).text("text1").build(),
-                Comment.builder().id(2L).book(book).text("text2").build()
+                Comment.builder().id("1").book(book).text("text1").build(),
+                Comment.builder().id("2").book(book).text("text2").build()
         );
 
         Book book = preBook.toBuilder().comments(commentsByBookId).build();

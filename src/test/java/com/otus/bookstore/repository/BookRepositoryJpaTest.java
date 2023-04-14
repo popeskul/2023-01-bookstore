@@ -1,15 +1,17 @@
 package com.otus.bookstore.repository;
 
+import com.github.cloudyrock.spring.v5.EnableMongock;
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
 import com.otus.bookstore.model.Genre;
-import org.hibernate.SessionFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -17,7 +19,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataMongoTest
+@EnableMongock
+@ActiveProfiles("test")
+@ComponentScan({"com.otus.bookstore.repository", "com.otus.bookstore.model"})
 class BookRepositoryJpaTest {
     private static final String title = "Book1";
     private static final String title2 = "Book2";
@@ -32,7 +37,7 @@ class BookRepositoryJpaTest {
     private CommentRepository commentRepository;
 
     @Autowired
-    private TestEntityManager entityManager;
+    private MongoTemplate mongoTemplate;
 
     Book initialBook;
     Author initialAuthor;
@@ -40,7 +45,11 @@ class BookRepositoryJpaTest {
 
     @BeforeEach
     void setUp() {
-        initialBook = bookRepository.findAll().get(0);
+        var books = bookRepository.findAll();
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isGreaterThan(0);
+
+        initialBook = books.get(0);
         initialAuthor = initialBook.getAuthor();
         initialGenre = initialBook.getGenre();
     }
@@ -48,7 +57,6 @@ class BookRepositoryJpaTest {
     @Test
     void shouldSaveBook() {
         Book book = Book.builder()
-                .id(100L)
                 .title(title)
                 .description(description)
                 .price(price)
@@ -61,14 +69,14 @@ class BookRepositoryJpaTest {
         assertThat(createdBook).isNotNull();
         assertThat(createdBook.getTitle()).isEqualTo(title);
         assertThat(createdBook.getDescription()).isEqualTo(description);
-        assertThat(createdBook.getId()).isGreaterThan(0);
+        assertThat(createdBook.getId().length()).isGreaterThan(0);
 
-        Book actual = entityManager.find(Book.class, createdBook.getId());
+        Book actual = bookRepository.findById(createdBook.getId()).orElse(null);
 
         assertThat(actual).isNotNull();
         assertThat(actual.getTitle()).isEqualTo(title);
         assertThat(actual.getDescription()).isEqualTo(description);
-        assertThat(actual.getId()).isGreaterThan(0);
+        assertThat(actual.getId().length()).isGreaterThan(0);
 
         assertThat(actual.getAuthor()).isNotNull();
         assertThat(actual.getAuthor().getId()).isEqualTo(initialAuthor.getId());
@@ -80,10 +88,6 @@ class BookRepositoryJpaTest {
     @Test
     void shouldUpdateBook() {
         // enable statistics
-        SessionFactory sessionFactory = entityManager.getEntityManager().getEntityManagerFactory().unwrap(SessionFactory.class);
-        sessionFactory.getStatistics().clear();
-        sessionFactory.getStatistics().setStatisticsEnabled(true);
-
         Book bookForUpdate = initialBook.toBuilder()
                 .title(title2)
                 .description(description2)
@@ -91,12 +95,12 @@ class BookRepositoryJpaTest {
 
         Book updatedBook = bookRepository.save(bookForUpdate);
 
-        Book updatedActual = entityManager.find(Book.class, bookForUpdate.getId());
+        Book updatedActual = bookRepository.findById(updatedBook.getId()).orElse(null);
 
         assertThat(updatedActual).isNotNull();
         assertThat(updatedActual.getTitle()).isEqualTo(title2);
         assertThat(updatedActual.getDescription()).isEqualTo(description2);
-        assertThat(updatedActual.getId()).isGreaterThan(0);
+        assertThat(updatedActual.getId().length()).isGreaterThan(0);
         assertThat(updatedActual.getId()).isEqualTo(initialBook.getId());
 
         assertThat(updatedActual.getAuthor()).isNotNull();
@@ -124,7 +128,7 @@ class BookRepositoryJpaTest {
         // then
         assertThat(actual).isNotNull();
         assertThat(actual.get().getTitle()).isEqualTo(initialBook.getTitle());
-        assertThat(actual.get().getId()).isGreaterThan(0);
+        assertThat(actual.get().getId().length()).isGreaterThan(0);
 
         assertThat(actual.get().getAuthor()).isNotNull();
         assertThat(actual.get().getAuthor().getId()).isEqualTo(initialAuthor.getId());
@@ -136,30 +140,21 @@ class BookRepositoryJpaTest {
     @Test
     void shouldFindAllBooks() {
         Comment comment = Comment.builder()
-                .id(0L)
                 .text("Comment1")
                 .book(initialBook)
                 .build();
 
         commentRepository.save(comment);
 
-        // enable statistics
-        SessionFactory sessionFactory = entityManager.getEntityManager().getEntityManagerFactory().unwrap(SessionFactory.class);
-        sessionFactory.getStatistics().clear();
-        sessionFactory.getStatistics().setStatisticsEnabled(true);
-
         List<Book> books = bookRepository.findAll();
 
         assertThat(books).isNotEmpty();
         assertThat(books).hasSize(4);
-
-        // check statistics
-        assertThat(sessionFactory.getStatistics().getPrepareStatementCount()).isEqualTo(1);
     }
 
     @Test
     void shouldDeleteById() {
-        entityManager.getEntityManager().createNativeQuery("DELETE FROM comment").executeUpdate();
+        mongoTemplate.dropCollection(Comment.class);
 
         bookRepository.deleteById(initialBook.getId());
 

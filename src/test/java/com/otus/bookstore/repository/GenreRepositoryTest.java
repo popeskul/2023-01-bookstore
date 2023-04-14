@@ -3,14 +3,18 @@ package com.otus.bookstore.repository;
 import com.otus.bookstore.model.Genre;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@DataJpaTest
+@DataMongoTest
+@ActiveProfiles("test")
+@ComponentScan({"com.otus.bookstore.repository", "com.otus.bookstore.model"})
 public class GenreRepositoryTest {
     private static final String name = "Genre1";
     private static final String name2 = "Genre2";
@@ -19,10 +23,9 @@ public class GenreRepositoryTest {
     private GenreRepository genreRepository;
 
     @Autowired
-    private TestEntityManager entityManager;
+    private MongoTemplate mongoTemplate;
 
     private final Genre validGenreWithId = Genre.builder()
-            .id(1L)
             .name(name)
             .build();
 
@@ -32,11 +35,11 @@ public class GenreRepositoryTest {
 
         genreRepository.save(genre);
 
-        Genre actual = entityManager.find(Genre.class, genre.getId());
+        Genre actual = mongoTemplate.findById(genre.getId(), Genre.class);
 
         assertThat(actual).isNotNull();
         assertThat(actual.getName()).isEqualTo(name);
-        assertThat(actual.getId()).isGreaterThan(0);
+        assertThat(actual.getId().length()).isGreaterThan(0);
     }
 
     @Test
@@ -45,21 +48,21 @@ public class GenreRepositoryTest {
 
         genreRepository.save(genre);
 
-        Genre actual = entityManager.find(Genre.class, genre.getId());
+        Genre actual = mongoTemplate.findById(genre.getId(), Genre.class);
 
         assertThat(actual).isNotNull();
         assertThat(actual.getName()).isEqualTo(name);
-        assertThat(actual.getId()).isGreaterThan(0);
+        assertThat(actual.getId().length()).isGreaterThan(0);
 
         Genre dirty = actual.toBuilder().name(name2).build();
 
         genreRepository.save(dirty);
 
-        Genre actualDirty = entityManager.find(Genre.class, genre.getId());
+        Genre actualDirty = mongoTemplate.findById(dirty.getId(), Genre.class);
 
         assertThat(actualDirty).isNotNull();
         assertThat(actualDirty.getName()).isEqualTo(name2);
-        assertThat(actualDirty.getId()).isGreaterThan(0);
+        assertThat(actualDirty.getId().length()).isGreaterThan(0);
     }
 
     @Test
@@ -69,7 +72,7 @@ public class GenreRepositoryTest {
 
     @Test
     public void shouldFindById() {
-        Genre genre = Genre.builder().name(name).id(1L).build();
+        Genre genre = Genre.builder().name(name).build();
 
         genreRepository.save(genre);
 
@@ -78,12 +81,12 @@ public class GenreRepositoryTest {
         assertThat(actual).isNotNull();
         assertThat(actual.isPresent()).isTrue();
         assertThat(actual.get().getName()).isEqualTo(name);
-        assertThat(actual.get().getId()).isGreaterThan(0);
+        assertThat(actual.get().getId().length()).isGreaterThan(0);
     }
 
     @Test
     public void shouldNotFindGenreById() {
-        Optional<Genre> actual = genreRepository.findById(-1L);
+        Optional<Genre> actual = genreRepository.findById("-1");
         assertThat(actual).isEmpty();
     }
 

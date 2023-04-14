@@ -4,11 +4,10 @@ import com.otus.bookstore.model.Author;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.service.AuthorService;
-import com.otus.bookstore.service.CliBookService;
 import com.otus.bookstore.service.BookService;
+import com.otus.bookstore.service.CliBookService;
 import com.otus.bookstore.service.GenreService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -35,19 +34,17 @@ public class CliBookServiceImpl implements CliBookService {
     }
 
     @Override
-    public Optional<Book> getById(long id) {
+    public Optional<Book> getById(String id) {
         return bookService.findById(id);
     }
 
     @Override
-    @Transactional
-    public Book create(String title, String description, BigDecimal price, long authorId, long genreId) {
+    public Book create(String title, String description, BigDecimal price, String authorId, String genreId) {
         Author author = authorService.findById(authorId).orElseThrow();
 
         Genre genre = genreService.getById(genreId).orElseThrow();
 
         Book book = Book.builder()
-                .id(0L)
                 .title(title)
                 .description(description)
                 .price(price)
@@ -59,9 +56,8 @@ public class CliBookServiceImpl implements CliBookService {
     }
 
     @Override
-    @Transactional
-    public Book update(long id, String title, String description, BigDecimal price, long authorId, long genreId) {
-        if (id == 0) {
+    public Book update(String id, String title, String description, BigDecimal price, String authorId, String genreId) {
+        if (id == null || id.isEmpty()) {
             throw new IllegalArgumentException(ERROR_ID_MUST_BE_GREATER_THAN_0);
         }
 
@@ -82,7 +78,7 @@ public class CliBookServiceImpl implements CliBookService {
     }
 
     @Override
-    public void deleteById(long id) {
+    public void deleteById(String id) {
         bookService.deleteById(id);
     }
 }

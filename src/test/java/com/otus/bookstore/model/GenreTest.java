@@ -1,29 +1,31 @@
 package com.otus.bookstore.model;
 
+import com.github.cloudyrock.spring.v5.EnableMongock;
+import com.otus.bookstore.repository.GenreRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-@DataJpaTest
+@DataMongoTest
+@EnableMongock
+@ActiveProfiles("test")
 class GenreTest {
-    private final long id = 1;
-    private final long id2 = 2;
+    private final String id = "1";
+    private final String id2 = "2";
     private final String title = "Fiction";
 
     @Autowired
-    private TestEntityManager entityManager;
+    private GenreRepository genreRepository;
 
     @Test
     void testInitialSavedData() {
-        List<Genre> allGenres = entityManager.getEntityManager()
-                .createQuery("select g from Genre g", Genre.class)
-                .getResultList();
+        List<Genre> allGenres = genreRepository.findAll();
 
         assert allGenres.size() == 3;
     }

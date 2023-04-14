@@ -8,9 +8,9 @@ import java.util.Optional;
 public interface BookService {
     Book save(Book book);
 
-    Optional<Book> findById(long id);
+    Optional<Book> findById(String id);
 
     List<Book> findAll();
 
-    void deleteById(long id);
+    void deleteById(String id);
 }

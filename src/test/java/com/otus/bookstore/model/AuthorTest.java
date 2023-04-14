@@ -1,35 +1,23 @@
 package com.otus.bookstore.model;
 
+import com.github.cloudyrock.spring.v5.EnableMongock;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-
-import java.util.List;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-@DataJpaTest
+@DataMongoTest
+@EnableMongock
+@ActiveProfiles("test")
 class AuthorTest {
-    private final long id = 1;
-    private final long id3 = 3;
+    private final String id = "1";
+    private final String id3 = "3";
     private final String name = "John Doe";
     private final String name2 = "Jane Smith";
     private final String email = "john.doe@example.com";
     private final String email2 = "jane.smith@example.com";
-
-    @Autowired
-    private TestEntityManager entityManager;
-
-    @Test
-    void testInitialSavedData() {
-        List<Author> allAuthors = entityManager.getEntityManager()
-                .createQuery("select a from Author a", Author.class)
-                .getResultList();
-
-        assert allAuthors.size() == 2;
-    }
 
     @Test
     void testEqualsAndHashCode() {

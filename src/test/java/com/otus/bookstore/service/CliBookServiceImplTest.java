@@ -1,17 +1,16 @@
 package com.otus.bookstore.service;
 
-import com.otus.bookstore.exception.EntitySaveException;
-import com.otus.bookstore.model.Author;
+import com.github.cloudyrock.spring.v5.EnableMongock;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Genre;
-import com.otus.bookstore.service.impl.AuthorServiceImpl;
 import com.otus.bookstore.service.impl.CliBookServiceImpl;
-import com.otus.bookstore.service.impl.GenreServiceImpl;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -21,8 +20,14 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
-@Import({CliBookServiceImpl.class, AuthorServiceImpl.class, GenreServiceImpl.class})
+@DataMongoTest
+@EnableMongock
+@ActiveProfiles("test")
+@ComponentScan({
+        "com.otus.bookstore.service", "com.otus.bookstore.repository",
+        "com.otus.bookstore.model", "com.otus.bookstore.validator"
+})
+@Import({CliBookServiceImpl.class})
 public class CliBookServiceImplTest {
     private static final String title = "Some title";
     private static final String title2 = "Some title2";
@@ -41,16 +46,22 @@ public class CliBookServiceImplTest {
 
     @Test
     void shouldCreateBook() {
-        long genreId = genreService.getAll().get(0).getId();
+        var genres = genreService.getAll();
+        assertThat(genres).isNotEmpty();
 
-        assertThat(genreId).isPositive();
+        String genreId = genres.get(0).getId();
 
-        long authorId = authorService.getAll().get(0).getId();
+        assertThat(genreId).isNotNull();
 
-        assertThat(authorId).isPositive();
+        var authors = authorService.getAll();
+        assertThat(authors).isNotEmpty();
+
+        String authorId = authors.get(0).getId();
+        assertThat(authorId).isNotNull();
+        assertThat(authorId.length()).isGreaterThan(0);
 
         // Act
-        Book book = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, authorId, genreId);
 
         // Assert
         assertThat(book).isNotNull();
@@ -69,28 +80,30 @@ public class CliBookServiceImplTest {
         Genre genre = genreService.getAll().get(0);
 
         assertThat(genre).isNotNull();
-        assertThat(genre.getId()).isPositive();
+        assertThat(genre.getId().length()).isGreaterThan(0);
 
-        Author author = authorService.getAll().get(0);
+        var authors = authorService.getAll();
+        assertThat(authors).isNotEmpty();
+
+        var author = authors.get(0);
 
         assertThat(author).isNotNull();
-        assertThat(author.getId()).isPositive();
+        assertThat(author.getId().length()).isGreaterThan(0);
 
-        Book badBook = Book.builder().id(0L).genre(genre).author(author).build();
+        Book badBook = Book.builder().id("").genre(genre).author(author).build();
 
         // bad request
         assertThatThrownBy(() -> cliBookService.create(badBook.getTitle(), badBook.getDescription(),
-                badBook.getPrice(), badBook.getGenre().getId(), badBook.getAuthor().getId()))
-                .isInstanceOf(EntitySaveException.class)
-                .hasMessageContaining(new EntitySaveException(badBook).getMessage());
+                badBook.getPrice(), badBook.getAuthor().getId(), badBook.getGenre().getId()))
+                .isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test
     void shouldNotCreateBookWithBadAuthorId() {
-        int genreId = 1;
-        int badAuthorId = 0;
+        var genreId = "1";
+        var badAuthorId = "0";
 
-        assertThat(genreId).isPositive();
+        assertThat(genreId.length()).isGreaterThan(0);
 
         // bad author id
         assertThatThrownBy(() -> cliBookService.create(title, description, price, badAuthorId, genreId))
@@ -99,27 +112,33 @@ public class CliBookServiceImplTest {
 
     @Test
     void shouldNotCreateBookWithBadGenreId() {
-        long authorId = authorService.getAll().get(0).getId();
+        var authors = authorService.getAll();
+        assertThat(authors).isNotEmpty();
 
-        assertThat(authorId).isPositive();
+        var authorId = authors.get(0).getId();
+        assertThat(authorId).isNotNull();
 
         // bad genre id
-        assertThatThrownBy(() -> cliBookService.create(title, description, price, authorId, 0))
+        assertThatThrownBy(() -> cliBookService.create(title, description, price, authorId, "0"))
                 .isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
     void shouldGetById() {
-        long genreId = genreService.getAll().get(0).getId();
+        var genres = genreService.getAll();
+        assertThat(genres).isNotEmpty();
 
-        assertThat(genreId).isPositive();
+        var genreId = genres.get(0).getId();
+        assertThat(genreId).isNotNull();
 
-        long authorId = authorService.getAll().get(0).getId();
+        var authors = authorService.getAll();
+        assertThat(authors).isNotEmpty();
 
-        assertThat(authorId).isPositive();
+        var authorId = authors.get(0).getId();
+        assertThat(authorId).isNotNull();
 
         // Act
-        Book book = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, authorId, genreId);
 
         // Assert
         assertThat(book).isNotNull();
@@ -142,16 +161,20 @@ public class CliBookServiceImplTest {
 
     @Test
     void shouldUpdate() {
-        long genreId = genreService.getAll().get(0).getId();
+        var genres = genreService.getAll();
+        assertThat(genres).isNotEmpty();
 
-        assertThat(genreId).isPositive();
+        var genreId = genres.get(0).getId();
+        assertThat(genreId).isNotNull();
 
-        long authorId = authorService.getAll().get(0).getId();
+        var authors = authorService.getAll();
+        assertThat(authors).isNotEmpty();
 
-        assertThat(authorId).isPositive();
+        var authorId = authors.get(0).getId();
+        assertThat(authorId.length()).isGreaterThan(0);
 
         // Act
-        Book book = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, authorId, genreId);
 
         // Assert
         assertThat(book).isNotNull();
@@ -165,7 +188,7 @@ public class CliBookServiceImplTest {
         assertThat(actual.get().getAuthor().getId()).isEqualTo(authorId);
 
         // Act
-        cliBookService.update(book.getId(), title2, description2, price, genreId, authorId);
+        cliBookService.update(book.getId(), title2, description2, price, authorId, genreId);
 
         // Assert
         Optional<Book> actual2 = cliBookService.getById(book.getId());
@@ -179,31 +202,47 @@ public class CliBookServiceImplTest {
 
     @Test
     void shouldNotUpdateWithBadBookId() {
-        long genreId = genreService.getAll().get(0).getId();
+        // get first book
+        var books = cliBookService.getAll();
+        assertThat(books).isNotEmpty();
 
-        assertThat(genreId).isPositive();
+        var bookId = books.get(0).getId();
+        assertThat(bookId.length()).isGreaterThan(0);
 
-        long authorId = authorService.getAll().get(0).getId();
+        var genres = genreService.getAll();
+        assertThat(genres).isNotEmpty();
 
-        assertThat(authorId).isPositive();
+        String genreId = genres.get(0).getId();
+
+        assertThat(genreId.length()).isGreaterThan(0);
+
+        var authors = authorService.getAll();
+        assertThat(authors).isNotEmpty();
+
+        String authorId = authors.get(0).getId();
+        assertThat(authorId.length()).isGreaterThan(0);
 
         // Can't update book with id = 0
-        assertThatThrownBy(() -> cliBookService.update(0, title2, description2, price, authorId, genreId))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> cliBookService.update(bookId, null, null, price, authorId, genreId))
+                .isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test
     void shouldNotUpdateWithBadName() {
-        long genreId = genreService.getAll().get(0).getId();
+        var genres = genreService.getAll();
+        assertThat(genres).isNotEmpty();
 
-        assertThat(genreId).isPositive();
+        String genreId = genres.get(0).getId();
+        assertThat(genreId.length()).isGreaterThan(0);
 
-        long authorId = authorService.getAll().get(0).getId();
+        var authors = authorService.getAll();
+        assertThat(authors).isNotEmpty();
 
-        assertThat(authorId).isPositive();
+        String authorId = authors.get(0).getId();
+        assertThat(authorId.length()).isGreaterThan(0);
 
         // Act
-        Book book = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, authorId, genreId);
 
         // Assert
         assertThat(book).isNotNull();
@@ -217,22 +256,26 @@ public class CliBookServiceImplTest {
         assertThat(actual.get().getAuthor().getId()).isEqualTo(authorId);
 
         // bad request
-        assertThatThrownBy(() -> cliBookService.update(book.getId(), null, null, null, genreId, authorId))
-                .isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> cliBookService.update(book.getId(), null, null, null, authorId, genreId))
+                .isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test
     void shouldDeleteById() {
-        long genreId = genreService.getAll().get(0).getId();
+        var genres = genreService.getAll();
+        assertThat(genres).isNotEmpty();
 
-        assertThat(genreId).isPositive();
+        String genreId = genres.get(0).getId();
+        assertThat(genreId.length()).isGreaterThan(0);
 
-        long authorId = authorService.getAll().get(0).getId();
+        var authors = authorService.getAll();
+        assertThat(authors).isNotEmpty();
 
-        assertThat(authorId).isPositive();
+        String authorId = authors.get(0).getId();
+        assertThat(authorId.length()).isGreaterThan(0);
 
         // Act
-        Book book = cliBookService.create(title, description, price, genreId, authorId);
+        Book book = cliBookService.create(title, description, price, authorId, genreId);
 
         // Assert
         assertThat(book).isNotNull();

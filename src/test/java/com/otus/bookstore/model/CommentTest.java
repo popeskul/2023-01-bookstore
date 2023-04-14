@@ -1,48 +1,34 @@
 package com.otus.bookstore.model;
 
+import com.github.cloudyrock.spring.v5.EnableMongock;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-
-import java.util.List;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-@DataJpaTest
+@DataMongoTest
+@EnableMongock
+@ActiveProfiles("test")
 class CommentTest {
     private Author author;
     private Book book;
     private Comment commentTemplate;
 
-    @Autowired
-    private TestEntityManager entityManager;
-
     @BeforeEach
     void setUp() {
-        book = entityManager.find(Book.class, 1L);
-        author = book.getAuthor();
-
-        commentTemplate = Comment.builder().id(10L).book(book).text("Test").build();
-    }
-
-    @Test
-    void testInitialSavedData() {
-        List<Comment> allComments = entityManager.getEntityManager()
-                .createQuery("select c from Comment c", Comment.class)
-                .getResultList();
-
-        assertEquals(2, allComments.size());
+        author = Author.builder().id("1").name("John Doe").email("2asd@mail.com").build();
+        book = Book.builder().id("1").title("Test").author(author).build();
+        commentTemplate = Comment.builder().id("10").book(book).text("Test").build();
     }
 
     @Test
     void testEqualsAndHashCode() {
         Comment commentTheSame = commentTemplate.toBuilder().build();
         Comment commentTheSame2 = commentTemplate.toBuilder().build();
-        Comment commentDifferent = commentTemplate.toBuilder().id(31L).text("another text").build();
+        Comment commentDifferent = commentTemplate.toBuilder().id("31").text("another text").build();
 
         // Reflexivity
         assertEquals(commentTheSame, commentTheSame2);
@@ -66,20 +52,5 @@ class CommentTest {
 
         // ToString
         assertEquals(commentTheSame.toString(), commentTheSame2.toString());
-    }
-
-    @Test
-    @DisplayName("create a new comment with correct book and author")
-    void shouldCreateCommentWith() {
-        Comment newComment = commentTemplate.toBuilder().id(0L).build();
-
-        entityManager.persist(newComment);
-        entityManager.flush();
-
-        Comment foundComment = entityManager.find(Comment.class, newComment.getId());
-
-        assertEquals(newComment, foundComment);
-
-        assertEquals(newComment.getBook(), foundComment.getBook());
     }
 }

@@ -39,17 +39,17 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public Optional<Comment> findById(Long id) {
+    public Optional<Comment> findById(String id) {
         return commentRepository.findById(id);
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(String id) {
         commentRepository.deleteById(id);
     }
 
     @Override
-    public List<Comment> findByBookId(Long bookId) {
+    public List<Comment> findByBookId(String bookId) {
         return bookRepository.findById(bookId).orElseThrow()
                 .getComments();
     }
