@@ -1,16 +1,21 @@
 package com.otus.bookstore.service;
 
+import com.github.cloudyrock.spring.v5.EnableMongock;
 import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Author;
 import com.otus.bookstore.repository.AuthorRepository;
 import com.otus.bookstore.service.impl.AuthorServiceImpl;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +25,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@DataMongoTest
+@EnableMongock
+@ComponentScan({
+        "com.otus.bookstore.repository",
+        "com.otus.bookstore.validator"
+})
+@ActiveProfiles("test")
 @Import({AuthorServiceImpl.class})
 class AuthorServiceImplTest {
     private static final String name = "Some Doe";
@@ -29,7 +40,6 @@ class AuthorServiceImplTest {
     private static final String email2 = "email2@mail.com";
 
     Author unsavedValidAuthor = Author.builder()
-            .id(0L)
             .name(name)
             .email(email)
             .build();
@@ -40,12 +50,16 @@ class AuthorServiceImplTest {
     @Autowired
     private AuthorService authorService;
 
+    @Autowired
+    private MongoTemplate mongoTemplate;
+
     @Mock
     private AuthorRepository authorRepository;
 
     @BeforeEach
     void setUp() {
-        existedAuthor = authorService.findById(1).orElseThrow();
+        existedAuthor = mongoTemplate.findAll(Author.class).get(0);
+        assertThat(existedAuthor).isNotNull();
         existedAuthors = authorService.getAll();
     }
 
@@ -60,7 +74,7 @@ class AuthorServiceImplTest {
 
         // Assert
         assertThat(createdAuthor).isNotNull();
-        assertThat(createdAuthor.getId()).isPositive();
+        assertThat(createdAuthor.getId().length()).isGreaterThan(0);
         assertThat(createdAuthor.getName()).isEqualTo(name);
 
         Optional<Author> actual = authorService.findById(createdAuthor.getId());
@@ -76,27 +90,27 @@ class AuthorServiceImplTest {
         when(authorRepository.save(author)).thenThrow(EntitySaveException.class);
 
         // Act
-        assertThrows(EntitySaveException.class, () -> authorService.save(author));
+        assertThrows(ConstraintViolationException.class, () -> authorService.save(author));
     }
 
     @Test
     @DisplayName("Should not create when author is null")
     void shouldNotCreateWhenAuthorNull() {
         Author author = null;
-        when(authorRepository.save(author)).thenThrow(new EntitySaveException(author));
+        when(authorRepository.save(author)).thenThrow(new IllegalArgumentException());
 
         // Act
-        assertThrows(EntitySaveException.class, () -> authorService.save(author));
+        assertThrows(IllegalArgumentException.class, () -> authorService.save(author));
 
         // Assert
         assertThatThrownBy(() -> authorService.save(author))
-                .isInstanceOf(EntitySaveException.class);
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
     void shouldGetAuthorById() {
         // Act
-        Optional<Author> actual = authorService.findById(1);
+        Optional<Author> actual = authorService.findById(existedAuthor.getId());
 
         // Assert
         assertThat(actual).isPresent();
@@ -111,13 +125,13 @@ class AuthorServiceImplTest {
         Author createAuthor1 = authorService.save(author1);
 
         assertThat(createAuthor1).isNotNull();
-        assertThat(createAuthor1.getId()).isPositive();
+        assertThat(createAuthor1.getId().length()).isGreaterThan(0);
 
         Author author2 = unsavedValidAuthor.toBuilder().name(name2).email(email2).build();
         Author createAuthor2 = authorService.save(author2);
 
         assertThat(createAuthor2).isNotNull();
-        assertThat(createAuthor2.getId()).isPositive();
+        assertThat(createAuthor2.getId().length()).isGreaterThan(0);
 
         // Act
         List<Author> authors = authorService.getAll();
@@ -146,7 +160,7 @@ class AuthorServiceImplTest {
         Author createdAuthor = authorService.save(newAuthor);
 
         assertThat(createdAuthor).isNotNull();
-        assertThat(createdAuthor.getId()).isPositive();
+        assertThat(createdAuthor.getId().length()).isGreaterThan(0);
 
         Author dirtyAuthor = newAuthor.toBuilder()
                 .id(createdAuthor.getId())
@@ -187,7 +201,7 @@ class AuthorServiceImplTest {
         Author createdAuthor = authorService.save(newAuthor);
 
         assertThat(createdAuthor).isNotNull();
-        assertThat(createdAuthor.getId()).isPositive();
+        assertThat(createdAuthor.getId().length()).isGreaterThan(0);
 
         Optional<Author> createAuthor = authorService.findById(createdAuthor.getId());
 

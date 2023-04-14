@@ -1,41 +1,39 @@
 package com.otus.bookstore.model;
 
-import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Objects;
 
-@Entity
-@Table(name = "author")
-@Getter
+@Document
+@Data
 @Builder(toBuilder = true)
+@NoArgsConstructor
 @AllArgsConstructor
 public final class Author {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private final Long id;
+    private String id;
 
-    @Column(name = "name", nullable = false)
-    private final String name;
+    @Field(value = "name")
+    @NotBlank(message = "Name is mandatory")
+    private String name;
 
-    @Column(name = "email", nullable = false)
-    private final String email;
-
-    public Author() {
-        this.id = 0L;
-        this.name = "";
-        this.email = "";
-    }
+    @Field("email")
+    @NotBlank(message = "Email is mandatory")
+    private String email;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final Author author = (Author) o;
-        return id == author.id && Objects.equals(name, author.name) && Objects.equals(email, author.email);
+        return Objects.equals(id, author.id) && Objects.equals(name, author.name) && Objects.equals(email, author.email);
     }
 
     @Override

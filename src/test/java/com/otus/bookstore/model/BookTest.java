@@ -1,9 +1,11 @@
 package com.otus.bookstore.model;
 
+import com.github.cloudyrock.spring.v5.EnableMongock;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -11,23 +13,22 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-@DataJpaTest
+@DataMongoTest
+@EnableMongock
+@ActiveProfiles("test")
 class BookTest {
-    private final long id = 1;
-    private final long id2 = 2;
+    private final String id = "1";
+    private final String id2 = "2";
     private final int price = 100;
     private final String title = "Book 1";
     private final String description = "Description 1";
 
     @Autowired
-    private TestEntityManager entityManager;
+    private MongoTemplate mongoTemplate;
 
     @Test
     void testInitialSavedData() {
-        List<Book> allBooks = entityManager.getEntityManager()
-                .createQuery("select b from Book b", Book.class)
-                .getResultList();
-
+        List<Book> allBooks = mongoTemplate.findAll(Book.class);
         assert allBooks.size() == 4;
     }
 
@@ -90,6 +91,6 @@ class BookTest {
         assertNotEquals(book1.getId(), book2Different.getId());
 
         // toString
-        assertEquals(book1.toString(), "Book{id=" + id + ", title='" + title + "', description='" + description + "', price=" + price + ", author=" + author + ", genre=" + genre + "}");
+        assertEquals(book1.toString(), "Book{id=" + book1.getId() + ", title='" + title + "', description='" + description + "', price=" + price + ", author=" + author + ", genre=" + genre + "}");
     }
 }

@@ -1,61 +1,52 @@
 package com.otus.bookstore.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.FetchMode;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
-@Entity
-@Table(name = "book")
+@Document
+@Data
 @Builder(toBuilder = true)
+@NoArgsConstructor
 @AllArgsConstructor
-@Getter
 public final class Book {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private final Long id;
+    private String id;
 
-    @Column(name = "title", nullable = false)
-    private final String title;
+    @Field(name = "title")
+    @NotBlank(message = "Title is mandatory")
+    private String title;
 
-    @Column(name = "description", nullable = false)
-    private final String description;
+    @Field(name = "description")
+    @NotBlank(message = "Description is mandatory")
+    private String description;
 
-    @Column(name = "price", nullable = false)
-    private final BigDecimal price;
+    @Field(name = "price")
+    @Min(value = 0, message = "Price must be greater than 0")
+    private BigDecimal price;
 
-    @ManyToOne
-    @JoinColumn(name = "author_id")
+    @DBRef
+    @NotNull(message = "Author is mandatory")
     @ToString.Exclude
-    private final Author author;
+    private Author author;
 
-    @ManyToOne
-    @JoinColumn(name = "genre_id")
+    @DBRef
     @ToString.Exclude
-    private final Genre genre;
+    @NotNull(message = "Genre is mandatory")
+    private Genre genre;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "book_id")
-    @Fetch(FetchMode.JOIN)
+    @DBRef
     private List<Comment> comments;
-
-    public Book() {
-        this.id = 0L;
-        this.title = "";
-        this.description = "";
-        this.price = BigDecimal.ZERO;
-        this.author = null;
-        this.genre = null;
-    }
 
     public List<Comment> getComments() {
         return List.copyOf(comments);

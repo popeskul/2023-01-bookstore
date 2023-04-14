@@ -8,9 +8,9 @@ import java.util.Optional;
 public interface AuthorService {
     Author save(Author author);
 
-    Optional<Author> findById(long id);
+    Optional<Author> findById(String id);
 
     List<Author> getAll();
 
-    void deleteById(long id);
+    void deleteById(String id);
 }

@@ -1,44 +1,35 @@
 package com.otus.bookstore.service.impl;
 
-import com.otus.bookstore.exception.EntitySaveException;
 import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.repository.GenreRepository;
 import com.otus.bookstore.service.GenreService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.dao.DataAccessException;
+import com.otus.bookstore.validator.ObjectValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GenreServiceImpl implements GenreService {
-    private static final Logger LOGGER = LogManager.getLogger(GenreServiceImpl.class);
-
+public class GenreServiceImpl extends EntityServiceImpl<Genre> implements GenreService {
     private final GenreRepository genreRepository;
 
-    public GenreServiceImpl(GenreRepository genreRepository) {
+    public GenreServiceImpl(GenreRepository genreRepository, ObjectValidator validator) {
+        super(genreRepository, validator);
         this.genreRepository = genreRepository;
     }
 
     @Override
     public Genre save(Genre genre) {
-        try {
-            return genreRepository.save(genre);
-        } catch (DataAccessException e) {
-            LOGGER.error("Error saving genre {}", genre, e);
-            throw new EntitySaveException(genre, e);
-        }
+        return super.save(genre);
     }
 
     @Override
-    public void deleteById(long id) {
+    public void deleteById(String id) {
         genreRepository.deleteById(id);
     }
 
     @Override
-    public Optional<Genre> getById(long id) {
+    public Optional<Genre> getById(String id) {
         return genreRepository.findById(id);
     }
 

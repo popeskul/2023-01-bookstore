@@ -1,19 +1,25 @@
 package com.otus.bookstore.service;
 
-import com.otus.bookstore.exception.EntitySaveException;
+import com.github.cloudyrock.spring.v5.EnableMongock;
 import com.otus.bookstore.model.Genre;
 import com.otus.bookstore.service.impl.GenreServiceImpl;
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@SpringBootTest
+@DataMongoTest
+@EnableMongock
+@ComponentScan("com.otus.bookstore")
+@ActiveProfiles("test")
 @Import({GenreServiceImpl.class})
 public class GenreServiceImplTest {
     private static final String name = "Genre1";
@@ -22,7 +28,7 @@ public class GenreServiceImplTest {
     @Autowired
     private GenreService genreService;
 
-    private final Genre unsavedValidGenre = Genre.builder().id(0L).name(name).build();
+    private final Genre unsavedValidGenre = Genre.builder().name(name).build();
 
     @Test
     void shouldCreateGenre() {
@@ -31,7 +37,7 @@ public class GenreServiceImplTest {
         Genre createdGenre = genreService.save(genre);
 
         assertThat(createdGenre).isNotNull();
-        assertThat(createdGenre.getId()).isPositive();
+        assertThat(createdGenre.getId().length()).isPositive();
 
         Optional<Genre> actual = genreService.getById(createdGenre.getId());
         assertThat(actual).isPresent();
@@ -44,17 +50,16 @@ public class GenreServiceImplTest {
         Genre genre = unsavedValidGenre.toBuilder().name(null).build();
 
         assertThatThrownBy(() -> genreService.save(genre))
-                .isInstanceOf(EntitySaveException.class)
-                .hasMessageContaining(genre.toString());
+                .isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test
     void shouldUpdateGenre() {
-        Genre genre = unsavedValidGenre.toBuilder().id(1L).build();
+        Genre genre = unsavedValidGenre.toBuilder().id("1").build();
         Genre createdGenre = genreService.save(genre);
 
         assertThat(createdGenre).isNotNull();
-        assertThat(createdGenre.getId()).isPositive();
+        assertThat(createdGenre.getId().length()).isPositive();
 
         Optional<Genre> savedGenre = genreService.getById(createdGenre.getId());
 
@@ -77,7 +82,7 @@ public class GenreServiceImplTest {
         Genre createdGenre = genreService.save(genre);
 
         assertThat(createdGenre).isNotNull();
-        assertThat(createdGenre.getId()).isPositive();
+        assertThat(createdGenre.getId().length()).isPositive();
 
         genreService.deleteById(createdGenre.getId());
 
@@ -92,7 +97,7 @@ public class GenreServiceImplTest {
         Genre createdGenre = genreService.save(genre);
 
         assertThat(createdGenre).isNotNull();
-        assertThat(createdGenre.getId()).isPositive();
+        assertThat(createdGenre.getId().length()).isPositive();
 
         Optional<Genre> actual = genreService.getById(createdGenre.getId());
 
@@ -108,13 +113,13 @@ public class GenreServiceImplTest {
         Genre createdGenre = genreService.save(genre);
 
         assertThat(createdGenre).isNotNull();
-        assertThat(createdGenre.getId()).isPositive();
+        assertThat(createdGenre.getId().length()).isPositive();
 
         Genre genre2 = unsavedValidGenre.toBuilder().name(name2).build();
         Genre createdGenre2 = genreService.save(genre2);
 
         assertThat(createdGenre2).isNotNull();
-        assertThat(createdGenre2.getId()).isPositive();
+        assertThat(createdGenre2.getId().length()).isPositive();
 
         assertThat(genreService.getAll()).extracting(Genre::getName).contains(name, name2);
     }

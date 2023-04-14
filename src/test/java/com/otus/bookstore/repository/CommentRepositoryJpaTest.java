@@ -1,14 +1,17 @@
 package com.otus.bookstore.repository;
 
+import com.github.cloudyrock.spring.v5.EnableMongock;
 import com.otus.bookstore.model.Book;
 import com.otus.bookstore.model.Comment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +21,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doThrow;
 
-@DataJpaTest
+@DataMongoTest
+@ActiveProfiles("test")
+@EnableMongock
+@ComponentScan({
+        "com.otus.bookstore.repository", "com.otus.bookstore.model"
+})
 public class CommentRepositoryJpaTest {
     @Autowired
     private CommentRepository commentRepository;
@@ -30,7 +38,7 @@ public class CommentRepositoryJpaTest {
     private BookRepository bookRepository;
 
     @Autowired
-    private TestEntityManager entityManager;
+    private MongoTemplate mongoTemplate;
 
     private final String commentText = "Some comment text";
 
@@ -39,10 +47,13 @@ public class CommentRepositoryJpaTest {
 
     @BeforeEach
     void setUp() {
-        book = bookRepository.findById(1L).orElseThrow();
+        var books = bookRepository.findAll();
+        assertThat(books).isNotNull();
+        assertThat(books.size()).isGreaterThan(0);
+
+        book = bookRepository.findById(books.get(0).getId()).orElseThrow();
 
         comment = Comment.builder()
-                .id(0L)
                 .book(book)
                 .text(commentText)
                 .build();
@@ -55,11 +66,11 @@ public class CommentRepositoryJpaTest {
         Comment savedComment = commentRepository.save(newComment);
 
         assertThat(savedComment).isNotNull();
-        assertThat(savedComment.getId()).isGreaterThan(0);
+        assertThat(savedComment.getId().length()).isGreaterThan(0);
         assertThat(savedComment.getText()).isEqualTo(commentText);
         assertThat(savedComment.getBook()).isEqualTo(book);
 
-        Comment actual = entityManager.find(Comment.class, savedComment.getId());
+        Comment actual = commentRepository.findById(savedComment.getId()).orElseThrow();
         assertThat(actual).isNotNull();
         assertThat(actual.getId()).isEqualTo(savedComment.getId());
         assertThat(actual.getText()).isEqualTo(commentText);
@@ -98,25 +109,31 @@ public class CommentRepositoryJpaTest {
 
     @Test
     public void shouldFindAllComments() {
-        Comment comment1 = comment.toBuilder().id(0L).text("asd").build();
-        Comment comment2 = comment.toBuilder().id(0L).text("qwe").build();
+        mongoTemplate.dropCollection(Comment.class);
+
+        Comment comment1 = comment.toBuilder().text("asd").book(book).build();
+        Comment comment2 = comment.toBuilder().text("qwe").book(book).build();
 
         List<Comment> comments = Arrays.asList(comment1, comment2);
-        comments.forEach(entityManager::persist);
+        mongoTemplate.insertAll(comments);
 
         List<Comment> actual = commentRepository.findAll();
 
+        // add id to comments
+        Comment comment1WithData = comment1.toBuilder().id(actual.get(0).getId()).createdAt(actual.get(0).getCreatedAt()).build();
+        Comment comment2WithData = comment2.toBuilder().id(actual.get(1).getId()).createdAt(actual.get(1).getCreatedAt()).build();
+
         assertThat(actual).isNotNull();
-        assertThat(actual).contains(comment1, comment2);
+        assertThat(actual).contains(comment1WithData, comment2WithData);
     }
 
     @Test
     public void shouldDeleteById() {
-        Comment savedComment = entityManager.persist(comment);
+        Comment savedComment = commentRepository.save(comment);
 
         commentRepository.deleteById(savedComment.getId());
 
-        Comment actual = entityManager.find(Comment.class, comment.getId());
+        Comment actual = commentRepository.findById(savedComment.getId()).orElse(null);
 
         assertThat(actual).isNull();
     }

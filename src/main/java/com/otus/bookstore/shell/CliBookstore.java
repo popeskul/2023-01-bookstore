@@ -25,7 +25,7 @@ public class CliBookstore {
     public Optional<Book> getBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
-        return cliBookService.getById(Integer.parseInt(id));
+        return cliBookService.getById(id);
     }
 
     @ShellMethod(value = "Create book", key = {"book create"})
@@ -36,7 +36,7 @@ public class CliBookstore {
             @ShellOption(defaultValue = "authorId") String authorId,
             @ShellOption(defaultValue = "genreId") String genreId
     ) {
-        return cliBookService.create(title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
+        return cliBookService.create(title, description, new BigDecimal(price), authorId, genreId);
     }
 
     @ShellMethod(value = "Update book", key = {"book update"})
@@ -49,7 +49,7 @@ public class CliBookstore {
             @ShellOption(defaultValue = "genreId") String genreId
     ) {
         try {
-            return cliBookService.update(Long.parseLong(id), title, description, new BigDecimal(price), Integer.parseInt(authorId), Integer.parseInt(genreId));
+            return cliBookService.update(id, title, description, new BigDecimal(price), authorId, genreId);
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -60,6 +60,6 @@ public class CliBookstore {
     public void deleteBookById(
             @ShellOption(defaultValue = "id") String id
     ) {
-        cliBookService.deleteById(Long.parseLong(id));
+        cliBookService.deleteById(id);
     }
 }

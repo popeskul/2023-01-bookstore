@@ -9,11 +9,11 @@ import java.util.Optional;
 public interface CliBookService {
     List<Book> getAll();
 
-    Optional<Book> getById(long id);
+    Optional<Book> getById(String id);
 
-    Book create(String title, String description, BigDecimal price, long authorId, long genreId);
+    Book create(String title, String description, BigDecimal price, String authorId, String genreId);
 
-    Book update(long id, String title, String description, BigDecimal price, long authorId, long genreId);
+    Book update(String id, String title, String description, BigDecimal price, String authorId, String genreId);
 
-    void deleteById(long id);
+    void deleteById(String id);
 }

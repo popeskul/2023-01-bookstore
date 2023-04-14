@@ -1,46 +1,36 @@
 package com.otus.bookstore.model;
 
-import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Entity
-@Table(name = "comment")
+@Document
 @Getter
 @Builder(toBuilder = true)
 @ToString
 @AllArgsConstructor
 public class Comment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private final Long id;
+    private final String id;
 
-    @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
+    @DBRef
     private final Book book;
 
-    @Column(name = "text", nullable = false)
+    @Field(name = "text")
     private final String text;
 
-    @Column(name = "created_at")
+    @Field(name = "created_at")
+    @CreatedDate
     private LocalDateTime createdAt;
-
-    public Comment() {
-        this.id = 0L;
-        this.book = null;
-        this.text = "";
-    }
-
-    @PrePersist
-    public void prePersist() {
-        createdAt = LocalDateTime.now();
-    }
 
     @Override
     public boolean equals(Object o) {

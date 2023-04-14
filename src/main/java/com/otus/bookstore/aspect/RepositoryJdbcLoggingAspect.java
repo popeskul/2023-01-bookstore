@@ -24,7 +24,7 @@ public class RepositoryJdbcLoggingAspect {
         try {
             result = joinPoint.proceed();
         } catch (Throwable e) {
-            logger.error("Exception thrown in {}.{}() with cause = '{}'", className, methodName, e.getCause());
+            logger.error("Exception in {}.{}(): {}", className, methodName, e.getMessage());
             throw e;
         }
 
